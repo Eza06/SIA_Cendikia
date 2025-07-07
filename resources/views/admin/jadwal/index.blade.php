@@ -19,16 +19,15 @@
         <x-navbar></x-navbar>
         <div class="content-wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
-
                 <h4 class="fw-bold py-3 mb-4"><i class="bx bx-calendar me-2"></i>Jadwal Mengajar</h4>
 
                 <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary mb-4">
                     <i class='bx bx-add-to-queue me-1'></i> Tambah Jadwal
                 </a>
 
+                {{-- Filter --}}
                 <form method="GET" action="{{ route('admin.jadwal.index') }}" class="mb-4">
                     <div class="row g-3">
-                        {{-- Baris 1 --}}
                         <div class="col-md-4">
                             <label for="jenjang" class="form-label">Jenjang</label>
                             <select name="jenjang" class="form-select">
@@ -38,7 +37,6 @@
                                 <option value="SMA" {{ request('jenjang') == 'SMA' ? 'selected' : '' }}>SMA</option>
                             </select>
                         </div>
-
                         <div class="col-md-4">
                             <label for="kelas" class="form-label">Kelas</label>
                             <select name="kelas" class="form-select">
@@ -49,7 +47,6 @@
                                 @endfor
                             </select>
                         </div>
-
                         <div class="col-md-4">
                             <label for="hari" class="form-label">Hari</label>
                             <select name="hari" class="form-select">
@@ -60,8 +57,6 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        {{-- Baris 2 --}}
                         <div class="col-md-4">
                             <label for="guru_id" class="form-label">Guru</label>
                             <select name="guru_id" class="form-select">
@@ -74,7 +69,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="col-md-4">
                             <label for="mapel_id" class="form-label">Mapel</label>
                             <select name="mapel_id" class="form-select">
@@ -87,7 +81,6 @@
                                 @endforeach
                             </select>
                         </div>
-
                         <div class="col-md-4">
                             <label for="status" class="form-label">Status</label>
                             <select name="status" class="form-select">
@@ -97,8 +90,6 @@
                                 </option>
                             </select>
                         </div>
-
-                        {{-- Tombol --}}
                         <div class="col-md-12 text-end">
                             <button type="submit" class="btn btn-secondary">
                                 <i class="bx bx-search"></i> Filter
@@ -108,6 +99,8 @@
                     </div>
                 </form>
 
+                {{-- ...semua bagian sebelum ini tetap sama --}}
+
                 {{-- List Jadwal --}}
                 <div class="row">
                     @forelse ($jadwal as $jadwals)
@@ -115,37 +108,34 @@
                             <div class="card shadow-sm border rounded-3">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary mt-3 mb-3 d-flex align-items-center">
-                                        <i class="bx bx-book me-2"></i>
-                                        {{ $jadwals->mapel->name ?? '[Mapel dihapus]' }}
+                                        <i class="bx bx-book me-2"></i> {{ $jadwals->mapel->name ?? '[Mapel dihapus]' }}
                                     </h5>
-                                    <div><strong>Nama Pengajar : </strong>
-                                        {{ $jadwals->guru->user->name ?? '[Guru dihapus]' }}
-                                    </div>
+                                    <div><strong>Nama Pengajar:</strong>
+                                        {{ $jadwals->guru->user->name ?? '[Guru dihapus]' }}</div>
                                     <hr>
-                                    <div><strong>Jenjang : </strong> {{ $jadwals->jenjang }}</div>
+                                    <div><strong>Jenjang:</strong> {{ $jadwals->jenjang }}</div>
                                     <hr>
-                                    <div><strong>Kelas : </strong> {{ $jadwals->kelas }}</div>
+                                    <div><strong>Kelas:</strong> {{ $jadwals->kelas }}</div>
                                     <hr>
-                                    <div><strong>Hari / Tanggal : </strong>
-                                        {{ $jadwals->hari }},
+                                    <div><strong>Hari / Tanggal:</strong> {{ $jadwals->hari }},
                                         {{ \Carbon\Carbon::parse($jadwals->tanggal)->translatedFormat('d F Y') }}
                                     </div>
                                     <hr>
-                                    <div><strong>Jam :</strong>
+                                    <div><strong>Jam:</strong>
                                         {{ \Carbon\Carbon::parse($jadwals->jam_mulai)->format('H:i') }} -
                                         {{ \Carbon\Carbon::parse($jadwals->jam_selesai)->format('H:i') }}
                                     </div>
                                     <hr>
-                                    <div><strong>Ruangan : </strong> {{ $jadwals->ruangan }}</div>
+                                    <div><strong>Ruangan:</strong> {{ $jadwals->ruangan }}</div>
                                     <hr>
-                                    <div><strong>Materi : </strong> {{ $jadwals->materi }}</div>
+                                    <div><strong>Materi:</strong> {{ $jadwals->materi }}</div>
                                     <hr>
+
                                     <div class="d-flex justify-content-between align-items-center mt-3">
                                         <form action="{{ route('admin.jadwal.toggleStatus', $jadwals->id) }}"
                                             method="POST"
                                             onsubmit="return confirm('Yakin ingin mengubah status jadwal ini?')">
-                                            @csrf
-                                            @method('PATCH')
+                                            @csrf @method('PATCH')
                                             <button type="submit"
                                                 class="badge border-0 fs-5 {{ $jadwals->status == 'AKTIF' ? 'bg-success' : 'bg-danger' }}">
                                                 {{ $jadwals->status }}
@@ -153,31 +143,113 @@
                                         </form>
 
                                         <div class="d-flex gap-2">
+                                            <a href="#" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#modalDetail{{ $jadwals->id }}">
+                                                <i class="bx bx-show"></i>
+                                            </a>
                                             <a href="{{ route('admin.jadwal.edit', $jadwals->id) }}"
-                                                class="btn btn-warning me-2"><i class="bx bx-edit-alt"></i></a>
+                                                class="btn btn-warning">
+                                                <i class="bx bx-edit-alt"></i>
+                                            </a>
                                             <form action="{{ route('admin.jadwal.destroy', $jadwals->id) }}"
                                                 method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger show_confirm" type="submit"><i
-                                                        class="bx bx-trash"></i></button>
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-danger show_confirm" type="submit">
+                                                    <i class="bx bx-trash"></i>
+                                                </button>
                                             </form>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        {{-- Modal Detail --}}
+                        <div class="modal fade" id="modalDetail{{ $jadwals->id }}" tabindex="-1"
+                            aria-labelledby="modalLabel{{ $jadwals->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalLabel{{ $jadwals->id }}">Detail Jadwal</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Tutup"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Mapel:</strong> {{ $jadwals->mapel->name ?? '-' }}</p>
+                                                <p><strong>Guru:</strong> {{ $jadwals->guru->user->name ?? '-' }}</p>
+                                                <p><strong>Jenjang:</strong> {{ $jadwals->jenjang }}</p>
+                                                <p><strong>Kelas:</strong> {{ $jadwals->kelas }}</p>
+                                                <p><strong>Kelas Belajar:</strong>
+                                                    {{ $jadwals->kelasBelajar->nama_kelas ?? '-' }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Hari:</strong> {{ $jadwals->hari }}</p>
+                                                <p><strong>Tanggal:</strong>
+                                                    {{ \Carbon\Carbon::parse($jadwals->tanggal)->translatedFormat('d F Y') }}
+                                                </p>
+                                                <p><strong>Jam:</strong>
+                                                    {{ \Carbon\Carbon::parse($jadwals->jam_mulai)->format('H:i') }} -
+                                                    {{ \Carbon\Carbon::parse($jadwals->jam_selesai)->format('H:i') }}
+                                                </p>
+                                                <p><strong>Ruangan:</strong> {{ $jadwals->ruangan }}</p>
+                                                <p><strong>Materi:</strong> {{ $jadwals->materi }}</p>
+                                            </div>
+                                        </div>
+                                        <p class="mt-3"><strong>Status:</strong><br>
+                                            <span
+                                                class="badge {{ $jadwals->status == 'AKTIF' ? 'bg-success' : 'bg-secondary' }}">
+                                                {{ $jadwals->status }}
+                                            </span>
+                                        </p>
+
+                                        {{-- Tabel Absensi --}}
+                                        <hr>
+                                        <h6 class="mt-4">Daftar Absensi Murid</h6>
+                                        @if ($jadwals->absen->isNotEmpty())
+                                            <div class="table-responsive mt-2">
+                                                <table class="table table-bordered table-sm">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>No</th>
+                                                            <th>Nama Siswa</th>
+                                                            <th>Status</th>
+                                                            <th>Keterangan</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($jadwals->absen as $i => $absen)
+                                                            <tr>
+                                                                <td>{{ $i + 1 }}</td>
+                                                                <td>{{ $absen->siswa->user->name ?? '-' }}</td>
+                                                                <td>{{ $absen->status }}</td>
+                                                                <td>{{ $absen->keterangan ?? '-' }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <div class="text-muted">Belum ada absensi tercatat.</div>
+                                        @endif
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Tutup</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     @empty
                         <div class="col-12 text-center py-5">
-                            <h5 class="text-muted"><i class="bx bx-calendar-x me-2"></i>Tidak ada jadwal mengajar</h5>
+                            <h5 class="text-muted"><i class="bx bx-calendar-x me-2"></i> Tidak ada jadwal mengajar</h5>
                         </div>
                     @endforelse
                 </div>
-
-            </div>
-        </div>
-    </div>
+            </div> {{-- container --}}
+        </div> {{-- content-wrapper --}}
+    </div> {{-- layout-page --}}
 @endsection
 
 @push('script')
