@@ -2,7 +2,7 @@
 
 @section('title', 'Jadwal')
 @section('content')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>:
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if (session('success'))
         <script>
             Swal.fire({
@@ -22,7 +22,7 @@
             <div class="container-xxl flex-grow-1 container-p-y">
 
                 <h4 class="fw-bold py-3 mb-4"><i class="bx bx-calendar me-2"></i>Jadwal Mengajar</h4>
-                <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary mb-4 "><i
+                <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary mb-4"><i
                         class='bx bx-add-to-queue me-1'></i> Tambah Jadwal</a>
 
                 <div class="row">
@@ -32,18 +32,22 @@
                                 <div class="card-body">
                                     <h5 class="card-title text-primary mt-3 mb-3 d-flex align-items-center">
                                         <i class="bx bx-book me-2"></i>
-                                        {{ $jadwals->mapel->name }}
-                                    </h5>                                    
-                                    <div><strong>Nama Pengajar : </strong> {{ $jadwals->guru->user->name }}
+                                        {{ $jadwals->mapel->name ?? '[Mapel dihapus]' }}
+                                    </h5>
+                                    <div><strong>Nama Pengajar : </strong>
+                                        @if ($jadwals->guru && $jadwals->guru->user)
+                                            {{ $jadwals->guru->user->name }}
+                                        @else
+                                            <span class="text-danger">[Guru dihapus]</span>
+                                        @endif
                                     </div>
                                     <hr>
-                                    <div><strong>Jenjang : </strong> {{ $jadwals->jenjang }}
-                                    </div>
+                                    <div><strong>Jenjang : </strong> {{ $jadwals->jenjang }}</div>
                                     <hr>
-                                    <div><strong>Kelas : </strong> {{ $jadwals->kelas }}
-                                    </div>
+                                    <div><strong>Kelas : </strong> {{ $jadwals->kelas }}</div>
                                     <hr>
-                                    <div><strong>Hari / Tanggal : </strong> {{ $jadwals->hari }},
+                                    <div><strong>Hari / Tanggal : </strong>
+                                        {{ $jadwals->hari }},
                                         {{ \Carbon\Carbon::parse($jadwals->tanggal)->translatedFormat('d F Y') }}
                                     </div>
                                     <hr>
@@ -52,11 +56,9 @@
                                         {{ \Carbon\Carbon::parse($jadwals->jam_selesai)->format('H:i') }}
                                     </div>
                                     <hr>
-                                    <div><strong>Ruangan : </strong> {{ $jadwals->ruangan }}
-                                    </div>
+                                    <div><strong>Ruangan : </strong> {{ $jadwals->ruangan }}</div>
                                     <hr>
-                                    <div><strong>Materi : </strong> {{ $jadwals->materi }}
-                                    </div>
+                                    <div><strong>Materi : </strong> {{ $jadwals->materi }}</div>
                                     <hr>
                                     <div class="d-flex justify-content-between align-items-center mt-3">
                                         {{-- Status kiri --}}
@@ -75,8 +77,7 @@
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('admin.jadwal.edit', $jadwals->id) }}"
                                                 class="btn btn-warning me-2"><i class="bx bx-edit-alt"></i></a>
-                                            <form action="{{ route('admin.jadwal.destroy', $jadwals->id) }}"
-                                                method="POST">
+                                            <form action="{{ route('admin.jadwal.destroy', $jadwals->id) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-danger show_confirm" type="submit"><i
@@ -88,26 +89,24 @@
                                 </div>
                             </div>
                         </div>
-                        @empty
-                            <div class="col-12 text-center py-5">
-                                <h5 class="text-muted"><i class="bx bx-calendar-x me-2"></i>Tidak ada jadwal mengajar</h5>
-                            </div>
+                    @empty
+                        <div class="col-12 text-center py-5">
+                            <h5 class="text-muted"><i class="bx bx-calendar-x me-2"></i>Tidak ada jadwal mengajar</h5>
+                        </div>
                     @endforelse
                 </div>
-
-                <!-- Tambah contoh lagi jika perlu -->
 
             </div>
         </div>
     </div>
-    </div>
 @endsection
+
 @push('script')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const deleteButtons = document.querySelectorAll('.show_confirm');
             deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
+                button.addEventListener('click', function (e) {
                     e.preventDefault();
                     Swal.fire({
                         title: 'Apakah Anda yakin?',

@@ -99,8 +99,23 @@ class GuruController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+public function destroy(string $id)
+{
+    $guru = Guru::findOrFail($id);
+
+    // Cek keterlibatan di jadwal
+    if ($guru->jadwals()->exists()) {
+        return redirect()->back()->with('error', 'Tidak bisa menghapus guru karena masih memiliki jadwal.');
     }
+
+    // Hapus user jika terhubung
+    if ($guru->user) {
+        $guru->user->delete();
+    }
+
+    $guru->delete();
+
+    return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil dihapus.');
+}
+
 }

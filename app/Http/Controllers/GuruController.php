@@ -17,9 +17,10 @@ class GuruController extends Controller
      */
     public function index()
     {
-        $guru = Guru::all();
+        $guru = Guru::with(['user', 'mapels'])->get(); 
         return view('admin.guru.index', compact('guru'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -137,15 +138,27 @@ class GuruController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $guru = Guru::findOrFail($id);
+        $guru = Guru::with('jadwal')->findOrFail($id);
 
+        // Hapus semua jadwal dan absen terkait
+        foreach ($guru->jadwal as $jadwal) {
+            // Hapus semua absen yang terkait dengan jadwal ini
+            $jadwal->absen()->delete();
+
+            // Hapus jadwalnya
+            $jadwal->delete();
+        }
+
+        // Hapus user (jika ada relasinya)
         if ($guru->user) {
             $guru->user->delete();
         }
+
+        // Terakhir, hapus guru
         $guru->delete();
 
-        return redirect(route('admin.guru.index'))->with('success', 'Data Guru berhasil di hapus');
+        return redirect()->route('admin.guru.index')->with('success', 'Guru dan semua data terkait berhasil dihapus.');
     }
 }

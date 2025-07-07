@@ -27,12 +27,19 @@ class Guru extends Model
 
     public function mapels()
     {
-        return $this->belongsToMany(Mapel::class, 'guru_mapel', 'guru_id', 'mapel_id');
+        return $this->belongsToMany(Mapel::class, 'guru_mapel');
     }
 
+    // app/Models/Guru.php
 
-    public function jadwals()
+    public function jadwal()
     {
-        return $this->hasMany(Jadwal::class);
+        return $this->hasMany(\App\Models\Jadwal::class, 'guru_id');
     }
+
+    public function kelas()
+{
+    return $this->belongsToMany(KelasBelajar::class, 'guru_kelas'); // sesuaikan nama tabel pivot jika berbeda
+}
+
 }

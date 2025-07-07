@@ -60,7 +60,7 @@
                                             <td>
                                                 <strong>{{ strtoupper($gurus->mapels->pluck('name')->implode(', ')) }}</strong>
                                             </td>
-                                            
+
                                             {{-- <td>{{ strtoupper($gurus->jenjang) }}</td>
                                             <td>{{ strtoupper($gurus->kelas) }}</td> --}}
                                             <td class="d-flex">
