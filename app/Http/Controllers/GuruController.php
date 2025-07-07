@@ -17,7 +17,7 @@ class GuruController extends Controller
      */
     public function index()
     {
-        $guru = Guru::with(['user', 'mapels'])->get(); 
+        $guru = Guru::with(['user', 'mapels'])->get();
         return view('admin.guru.index', compact('guru'));
     }
 

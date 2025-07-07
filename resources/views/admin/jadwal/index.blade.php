@@ -14,17 +14,101 @@
             });
         </script>
     @endif
+
     <div class="layout-page">
-        <!-- Navbar -->
         <x-navbar></x-navbar>
         <div class="content-wrapper">
-            <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
 
                 <h4 class="fw-bold py-3 mb-4"><i class="bx bx-calendar me-2"></i>Jadwal Mengajar</h4>
-                <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary mb-4"><i
-                        class='bx bx-add-to-queue me-1'></i> Tambah Jadwal</a>
 
+                <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary mb-4">
+                    <i class='bx bx-add-to-queue me-1'></i> Tambah Jadwal
+                </a>
+
+                <form method="GET" action="{{ route('admin.jadwal.index') }}" class="mb-4">
+                    <div class="row g-3">
+                        {{-- Baris 1 --}}
+                        <div class="col-md-4">
+                            <label for="jenjang" class="form-label">Jenjang</label>
+                            <select name="jenjang" class="form-select">
+                                <option value="">-- Semua --</option>
+                                <option value="SD" {{ request('jenjang') == 'SD' ? 'selected' : '' }}>SD</option>
+                                <option value="SMP" {{ request('jenjang') == 'SMP' ? 'selected' : '' }}>SMP</option>
+                                <option value="SMA" {{ request('jenjang') == 'SMA' ? 'selected' : '' }}>SMA</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="kelas" class="form-label">Kelas</label>
+                            <select name="kelas" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @for ($i = 1; $i <= 12; $i++)
+                                    <option value="{{ $i }}" {{ request('kelas') == $i ? 'selected' : '' }}>
+                                        {{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="hari" class="form-label">Hari</label>
+                            <select name="hari" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $day)
+                                    <option value="{{ $day }}" {{ request('hari') == $day ? 'selected' : '' }}>
+                                        {{ $day }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Baris 2 --}}
+                        <div class="col-md-4">
+                            <label for="guru_id" class="form-label">Guru</label>
+                            <select name="guru_id" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @foreach ($guruList as $g)
+                                    <option value="{{ $g->id }}"
+                                        {{ request('guru_id') == $g->id ? 'selected' : '' }}>
+                                        {{ $g->user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="mapel_id" class="form-label">Mapel</label>
+                            <select name="mapel_id" class="form-select">
+                                <option value="">-- Semua --</option>
+                                @foreach ($mapelList as $m)
+                                    <option value="{{ $m->id }}"
+                                        {{ request('mapel_id') == $m->id ? 'selected' : '' }}>
+                                        {{ $m->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">-- Semua --</option>
+                                <option value="AKTIF" {{ request('status') == 'AKTIF' ? 'selected' : '' }}>AKTIF</option>
+                                <option value="NONAKTIF" {{ request('status') == 'NONAKTIF' ? 'selected' : '' }}>NONAKTIF
+                                </option>
+                            </select>
+                        </div>
+
+                        {{-- Tombol --}}
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="bx bx-search"></i> Filter
+                            </button>
+                            <a href="{{ route('admin.jadwal.index') }}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
+                {{-- List Jadwal --}}
                 <div class="row">
                     @forelse ($jadwal as $jadwals)
                         <div class="col-md-6 col-lg-4 mb-4">
@@ -35,11 +119,7 @@
                                         {{ $jadwals->mapel->name ?? '[Mapel dihapus]' }}
                                     </h5>
                                     <div><strong>Nama Pengajar : </strong>
-                                        @if ($jadwals->guru && $jadwals->guru->user)
-                                            {{ $jadwals->guru->user->name }}
-                                        @else
-                                            <span class="text-danger">[Guru dihapus]</span>
-                                        @endif
+                                        {{ $jadwals->guru->user->name ?? '[Guru dihapus]' }}
                                     </div>
                                     <hr>
                                     <div><strong>Jenjang : </strong> {{ $jadwals->jenjang }}</div>
@@ -61,7 +141,6 @@
                                     <div><strong>Materi : </strong> {{ $jadwals->materi }}</div>
                                     <hr>
                                     <div class="d-flex justify-content-between align-items-center mt-3">
-                                        {{-- Status kiri --}}
                                         <form action="{{ route('admin.jadwal.toggleStatus', $jadwals->id) }}"
                                             method="POST"
                                             onsubmit="return confirm('Yakin ingin mengubah status jadwal ini?')">
@@ -73,11 +152,11 @@
                                             </button>
                                         </form>
 
-                                        {{-- Tombol kanan --}}
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('admin.jadwal.edit', $jadwals->id) }}"
                                                 class="btn btn-warning me-2"><i class="bx bx-edit-alt"></i></a>
-                                            <form action="{{ route('admin.jadwal.destroy', $jadwals->id) }}" method="POST">
+                                            <form action="{{ route('admin.jadwal.destroy', $jadwals->id) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-danger show_confirm" type="submit"><i
@@ -103,10 +182,10 @@
 
 @push('script')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const deleteButtons = document.querySelectorAll('.show_confirm');
             deleteButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
+                button.addEventListener('click', function(e) {
                     e.preventDefault();
                     Swal.fire({
                         title: 'Apakah Anda yakin?',
