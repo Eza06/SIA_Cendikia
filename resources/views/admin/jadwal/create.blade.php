@@ -106,7 +106,8 @@
 
                             <div class="form-group mb-3">
                                 <label for="ruangan" class="mb-2">Ruangan</label>
-                                <input type="text" class="form-control" name="ruangan" id="ruangan" placeholder="Masukkan Ruangan" required>
+                                <input type="text" class="form-control" name="ruangan" id="ruangan"
+                                    placeholder="Masukkan Ruangan" required>
                                 @error('ruangan')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -124,66 +125,98 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const guruSelect = document.getElementById('guru_id');
-        const mapelSelect = document.getElementById('mapel_id');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const guruSelect = document.getElementById('guru_id');
+            const mapelSelect = document.getElementById('mapel_id');
 
-        guruSelect.addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
-            const mapels = JSON.parse(selectedOption.dataset.mapels || '[]');
+            guruSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const mapels = JSON.parse(selectedOption.dataset.mapels || '[]');
 
-            mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+                mapelSelect.innerHTML = '<option value="">-- Pilih Mapel --</option>';
 
-            mapels.forEach(function (mapel) {
-                const option = document.createElement('option');
-                option.value = mapel.id;
-                option.textContent = mapel.name;
-                mapelSelect.appendChild(option);
+                mapels.forEach(function(mapel) {
+                    const option = document.createElement('option');
+                    option.value = mapel.id;
+                    option.textContent = mapel.name;
+                    mapelSelect.appendChild(option);
+                });
             });
         });
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tanggalInput = document.getElementById('tanggal');
-        const hariInput = document.getElementById('hari');
+    </script>
 
-        tanggalInput.addEventListener('change', function () {
-            const tanggal = new Date(this.value);
-            if (!isNaN(tanggal.getTime())) {
-                const hariIndonesia = tanggal.toLocaleDateString('id-ID', { weekday: 'long' });
-                hariInput.value = hariIndonesia.charAt(0).toUpperCase() + hariIndonesia.slice(1);
-            } else {
-                hariInput.value = '';
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const jenjangSelect = document.getElementById('education_level');
-        const kelasSelect = document.getElementById('kelas');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tanggalInput = document.getElementById('tanggal');
+            const hariInput = document.getElementById('hari');
 
-        const kelasByJenjang = {
-            SD: ['1', '2', '3', '4', '5', '6'],
-            SMP: ['7', '8', '9'],
-            SMA: ['10', '11', '12']
-        };
-
-        jenjangSelect.addEventListener('change', function () {
-            const jenjang = this.value;
-            const kelasOptions = kelasByJenjang[jenjang] || [];
-
-            kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-
-            kelasOptions.forEach(kelas => {
-                const option = document.createElement('option');
-                option.value = kelas;
-                option.text = kelas;
-                kelasSelect.appendChild(option);
+            tanggalInput.addEventListener('change', function() {
+                const tanggal = new Date(this.value);
+                if (!isNaN(tanggal.getTime())) {
+                    const hariIndonesia = tanggal.toLocaleDateString('id-ID', {
+                        weekday: 'long'
+                    });
+                    hariInput.value = hariIndonesia.charAt(0).toUpperCase() + hariIndonesia.slice(1);
+                } else {
+                    hariInput.value = '';
+                }
             });
         });
-    });
-</script>
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const jenjangSelect = document.getElementById('education_level');
+            const kelasSelect = document.getElementById('kelas');
+            const kelasBelajarSelect = document.getElementById('kelas_belajar_id');
+
+            const kelasByJenjang = {
+                SD: ['1', '2', '3', '4', '5', '6'],
+                SMP: ['7', '8', '9'],
+                SMA: ['10', '11', '12']
+            };
+
+            let currentJenjang = ''; // Simpan jenjang terpilih
+
+            const allKelasBelajarOptions = Array.from(kelasBelajarSelect.querySelectorAll('option'));
+
+            // Saat jenjang dipilih
+            jenjangSelect.addEventListener('change', function() {
+                currentJenjang = this.value;
+                const kelasOptions = kelasByJenjang[currentJenjang] || [];
+
+                // Reset kelas & kelas belajar
+                kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                kelasBelajarSelect.innerHTML = '<option value="">-- Pilih Kelas Belajar --</option>';
+
+                kelasOptions.forEach(kelas => {
+                    const option = document.createElement('option');
+                    option.value = kelas;
+                    option.textContent = kelas;
+                    kelasSelect.appendChild(option);
+                });
+            });
+
+            // Saat kelas dipilih
+            kelasSelect.addEventListener('change', function() {
+                const selectedKelas = this.value;
+
+                kelasBelajarSelect.innerHTML = '<option value="">-- Pilih Kelas Belajar --</option>';
+
+                allKelasBelajarOptions.forEach(option => {
+                    if (!option.value) return;
+
+                    const nama = option.textContent.trim(); // contoh: "6-1", "10 IPA"
+                    const regex = new RegExp('^' + selectedKelas + '([\\s\\-]|$)');
+
+                    // Validasi jenjang juga agar tidak campur
+                    if (regex.test(nama) && kelasByJenjang[currentJenjang].includes(
+                        selectedKelas)) {
+                        kelasBelajarSelect.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
+        });
+    </script>
 @endpush
