@@ -25,7 +25,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="" class="mb-2">Jenis Kelamin</label>
                                     <div class="d-flex align-items-center">
@@ -42,7 +42,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="no_telpon" class="mb-2">Asal Sekolah</label>
                                     <input type="text" class="form-control" name="asal_sekolah" id="asal_sekolah">
@@ -50,7 +50,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                
+
 
                                 <div class="form-group mb-3">
                                         <label for="education_level" class="mb-2">Jenjang Pendidikan</label>
@@ -64,7 +64,7 @@
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    
+
                                     <div class="form-group mb-3">
                                         <label for="kelas" class="mb-2">Kelas</label>
                                         <select class="form-control" name="kelas" id="kelas" required>
@@ -75,7 +75,7 @@
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    
+
                                     <div class="form-group mb-3">
                                         <label for="kelas" class="mb-2">Kelas Belajar</label>
                                         <select class="form-control" name="kelas_belajar_id" id="kelas_belajar_id" required>
@@ -88,9 +88,9 @@
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    
-                                    
-                            
+
+
+
                                 <div class="form-group mb-3">
                                     <label for="no_telpon" class="mb-2">Nomor Telepon Siswa/Wali Siswa</label>
                                     <input type="text" class="form-control" name="no_telpon" id="no_telpon" placeholder="08xxxxxxxxxx" required>
@@ -98,7 +98,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="alamat" class="mb-2">Alamat</label>
                                     <textarea class="form-control" name="alamat" id="alamat" placeholder="Masukkan Alamat" rows="3"></textarea>
@@ -106,7 +106,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="email" class="mb-2">Email Murid</label>
                                     <input type="email" class="form-control" name="email" id="email" placeholder="email@domain.com" required>
@@ -114,7 +114,7 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="password" class="mb-2">Password Akun</label>
                                     <input type="password" class="form-control" name="password" id="password" required>
@@ -122,17 +122,17 @@
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <label for="password_confirmation" class="mb-2">Konfirmasi Password</label>
                                     <input type="password" class="form-control" name="password_confirmation" id="password_confirmation" required>
                                 </div>
-                            
+
                                 <div class="form-group mb-3">
                                     <button type="submit" class="btn btn-primary">Simpan Murid</button>
                                 </div>
                             </form>
-                            
+
                     </div>
                 </div>
             </div>
@@ -142,31 +142,54 @@
 @endsection
 @push('scripts')
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const jenjangSelect = document.getElementById('education_level');
-            const kelasSelect = document.getElementById('kelas');
-    
-            const kelasByJenjang = {
-                SD: ['1', '2', '3', '4', '5', '6'],
-                SMP: ['7', '8', '9'],
-                SMA: ['10', '11', '12']
-            };
-    
-            jenjangSelect.addEventListener('change', function () {
-                const jenjang = this.value;
-                const kelasOptions = kelasByJenjang[jenjang] || [];
-    
-                // Hapus semua opsi lama
-                kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-    
-                // Tambahkan opsi baru
-                kelasOptions.forEach(kelas => {
-                    const option = document.createElement('option');
-                    option.value = kelas;
-                    option.text = kelas;
-                    kelasSelect.appendChild(option);
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        const jenjangSelect = document.getElementById('education_level');
+        const kelasSelect = document.getElementById('kelas');
+        const kelasBelajarSelect = document.getElementById('kelas_belajar_id');
+
+        const kelasByJenjang = {
+            SD: ['1', '2', '3', '4', '5', '6'],
+            SMP: ['7', '8', '9'],
+            SMA: ['10', '11', '12']
+        };
+
+        // Simpan semua opsi awal kelas belajar
+        const allKelasBelajarOptions = Array.from(kelasBelajarSelect.querySelectorAll('option'));
+
+        let currentJenjang = '';
+
+        jenjangSelect.addEventListener('change', function () {
+            currentJenjang = this.value;
+            const kelasOptions = kelasByJenjang[currentJenjang] || [];
+
+            // Reset kelas & kelas belajar
+            kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+            kelasBelajarSelect.innerHTML = '<option value="">-- Pilih Kelas Belajar --</option>';
+
+            // Tambah kelas sesuai jenjang
+            kelasOptions.forEach(kelas => {
+                const option = document.createElement('option');
+                option.value = kelas;
+                option.textContent = kelas;
+                kelasSelect.appendChild(option);
             });
         });
-    </script>
-    
+
+        kelasSelect.addEventListener('change', function () {
+            const selectedKelas = this.value;
+            kelasBelajarSelect.innerHTML = '<option value="">-- Pilih Kelas Belajar --</option>';
+
+            allKelasBelajarOptions.forEach(option => {
+                if (!option.value) return;
+
+                const nama = option.textContent.trim(); // contoh: "6-1" atau "10 IPA"
+                const regex = new RegExp('^' + selectedKelas + '([\\s\\-]|$)');
+
+                if (regex.test(nama) && kelasByJenjang[currentJenjang].includes(selectedKelas)) {
+                    kelasBelajarSelect.appendChild(option.cloneNode(true));
+                }
+            });
+        });
+    });
+</script>
+@endpush

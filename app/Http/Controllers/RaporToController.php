@@ -13,18 +13,33 @@ use Illuminate\Http\Request;
 
 class RaporToController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $raporTo = RaporTo::all();
-        return view('admin.raport.index', compact('raporTo'));
+        // Ambil data angkatan dan kelas belajar untuk filter
+        $angkatans = Angkatan::all();
+
+        // Urutkan nama_kelas secara numerik dan abjad, contoh: 1-A, 2-A, ..., 12-C
+        $kelasBelajar = KelasBelajar::orderByRaw("
+        CAST(SUBSTRING_INDEX(nama_kelas, '-', 1) AS UNSIGNED),
+        nama_kelas
+    ")->get();
+
+        // Filter data raport berdasarkan request jika tersedia
+        $query = RaporTo::query();
+
+        if ($request->filled('angkatan_id')) {
+            $query->where('angkatan_id', $request->angkatan_id);
+        }
+
+        if ($request->filled('kelas_belajar_id')) {
+            $query->where('kelas_belajar_id', $request->kelas_belajar_id);
+        }
+
+        $raporTo = $query->get();
+
+        return view('admin.raport.index', compact('raporTo', 'angkatans', 'kelasBelajar'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Request $request)
     {
         $kelasBelajar = KelasBelajar::all();
@@ -41,7 +56,6 @@ class RaporToController extends Controller
         return view('admin.raport.create', compact('kelasBelajar', 'angkatan', 'mapels', 'siswas'));
     }
 
-
     public function getSiswaByKelas(Request $request)
     {
         $kelasId = $request->kelas_belajar_id;
@@ -51,11 +65,6 @@ class RaporToController extends Controller
         return response()->json($siswa);
     }
 
-
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -66,7 +75,6 @@ class RaporToController extends Controller
             'nilai' => 'required|array',
         ]);
 
-        // 1. Simpan ke rapor_tos
         $rapor = RaporTo::create([
             'nama_rapor' => $request->nama_rapor,
             'angkatan_id' => $request->angkatan_id,
@@ -74,7 +82,6 @@ class RaporToController extends Controller
             'kelas_belajar_id' => $request->kelas_belajar_id,
         ]);
 
-        // 2. Simpan nilai ke nilai_tos
         foreach ($request->nilai as $siswaId => $nilaiMapel) {
             foreach ($nilaiMapel as $mapelId => $nilai) {
                 NilaiTo::create([
@@ -89,22 +96,14 @@ class RaporToController extends Controller
         return redirect()->route('admin.raport.index')->with('success', 'Raport berhasil disimpan');
     }
 
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-
         $rapor = RaporTo::findOrFail($id);
         $angkatans = Angkatan::all();
         $kelasBelajar = KelasBelajar::all();
-
-        $siswas = $rapor->kelasBelajar->siswas ?? [];
         $mapels = Mapel::all();
-
         $siswas = $rapor->kelasBelajar ? $rapor->kelasBelajar->siswa : collect();
-        // Ambil nilai yang sudah ada
+
         $nilaiRaport = NilaiTo::where('rapor_to_id', $rapor->id)->get()
             ->groupBy('siswa_id')
             ->map(function ($group) {
@@ -123,38 +122,27 @@ class RaporToController extends Controller
 
     public function cetakPerSiswa($rapor, $siswa)
     {
-        // Ambil data raport
         $rapor = RaporTo::with(['angkatan', 'kelasBelajar'])->findOrFail($rapor);
-
-        // Ambil data siswa
         $siswa = Siswa::with('user')->findOrFail($siswa);
 
-        // Ambil nilai raport untuk siswa ini
         $nilaiRapor = NilaiTo::with('mapel')
             ->where('rapor_to_id', $rapor->id)
             ->where('siswa_id', $siswa->id)
             ->get();
 
-        // Generate PDF
         $pdf = Pdf::loadView('admin.raport.pdf', compact('rapor', 'siswa', 'nilaiRapor'));
 
-        // Unduh PDF
         return $pdf->download('raport-' . $siswa->user->name . '_' . now()->format('Ymd_His') . '.pdf');
     }
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit($id)
     {
         $rapor = RaporTo::findOrFail($id);
         $angkatans = Angkatan::all();
         $kelasBelajar = KelasBelajar::all();
-
-        $siswas = $rapor->kelasBelajar->siswas ?? [];
         $mapels = Mapel::all();
-
         $siswas = $rapor->kelasBelajar ? $rapor->kelasBelajar->siswa : collect();
-        // Ambil nilai yang sudah ada
+
         $nilaiRaport = NilaiTo::where('rapor_to_id', $rapor->id)->get()
             ->groupBy('siswa_id')
             ->map(function ($group) {
@@ -171,9 +159,6 @@ class RaporToController extends Controller
         ));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -191,7 +176,6 @@ class RaporToController extends Controller
             'kelas_belajar_id' => $request->kelas_belajar_id,
         ]);
 
-        // Simpan nilai
         foreach ($request->siswa_id as $siswaId) {
             foreach ($request->nilai[$siswaId] as $mapelId => $nilai) {
                 NilaiTo::updateOrCreate(
@@ -210,15 +194,12 @@ class RaporToController extends Controller
         return redirect()->route('admin.raport.index')->with('success', 'Raport berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $rapor = RaporTo::findOrFail($id);
         $rapor->nilai()->delete();
-
         $rapor->delete();
+
         return redirect()->route('admin.raport.index')->with('success', 'Raport Berhasil Di Hapus');
     }
 }

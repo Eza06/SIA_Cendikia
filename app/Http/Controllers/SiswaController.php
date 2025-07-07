@@ -17,27 +17,34 @@ class SiswaController extends Controller
     public function index(Request $request)
     {
         $query = Siswa::with('user');
-    
+
         if ($request->filled('jenjang')) {
             $query->where('education_level', $request->jenjang);
         }
-    
+
         if ($request->filled('kelas')) {
             $query->where('kelas', $request->kelas);
         }
-    
+
         if ($request->filled('kelas_belajar_id')) {
             $query->where('kelas_belajar_id', $request->kelas_belajar_id);
         }
-    
-        $murid = $query->latest()->get();
-    
-        // Ambil semua kelas belajar untuk dropdown filter
-        $kelasBelajar = KelasBelajar::orderBy('nama_kelas')->get();
-    
+
+        $murid = $query
+            ->orderByRaw("FIELD(education_level, 'SD', 'SMP', 'SMA')")
+            ->orderByRaw("CAST(kelas AS UNSIGNED)")
+            ->orderBy('kelas_belajar_id')
+            ->get();
+
+        // Urutkan kelas belajar seperti '1-1', '2-1', ..., '12-3'
+        $kelasBelajar = KelasBelajar::orderByRaw("
+        CAST(SUBSTRING_INDEX(nama_kelas, '-', 1) AS UNSIGNED),
+        nama_kelas
+    ")->get();
+
         return view('admin.siswa.index', compact('murid', 'kelasBelajar'));
     }
-    
+
 
     /**
      * Show the form for creating a new resource.
