@@ -17,14 +17,23 @@ class SiswaController extends Controller
     {
         $user = Auth::user();
         $siswa = $user->siswa;
-        $mapelCount = Mapel::count(); 
-        $jadwal = Jadwal::where('kelas_belajar_id', $siswa->kelas_belajar_id)
-        ->orderBy('hari') // opsional
-        ->get();
+        $mapelCount = Mapel::count();
 
-        
+        $jadwal = Jadwal::with([
+            'mapel',
+            'guru.user',
+            'kelasbelajar',
+            'absens' => function ($q) use ($siswa) {
+                $q->where('siswa_id', $siswa->id);
+            }
+        ])
+            ->where('kelas_belajar_id', $siswa->kelas_belajar_id)
+            ->orderBy('hari')
+            ->get();
+
         return view('siswa.dashboard', compact('user', 'jadwal', 'mapelCount'));
     }
+
 
     /**
      * Show the form for creating a new resource.

@@ -42,5 +42,11 @@ class Jadwal extends Model
     {
         return $this->belongsTo(KelasBelajar::class, 'kelas_belajar_id');
     }
-    
+
+    public function absens()
+{
+    return $this->hasMany(\App\Models\Absen::class);
+}
+
+
 }
