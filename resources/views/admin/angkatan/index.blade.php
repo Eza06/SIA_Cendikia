@@ -160,7 +160,7 @@
                         e.preventDefault();
                         Swal.fire({
                             title: 'Apakah Anda yakin?',
-                            text: "Data Mata Pelajaran akan dihapus!",
+                            text: "Data Tahun Ajaran akan dihapus!",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#d33',
