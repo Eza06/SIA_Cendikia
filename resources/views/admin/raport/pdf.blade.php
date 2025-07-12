@@ -57,7 +57,7 @@
     <div style="margin-top: 40px; text-align: right;">
         <p>Bogor, {{ now()->setTimezone('Asia/Jakarta')->format('d F Y') }}</p>
         <p style="margin-top: 60px;">__________________________</p>
-        <p style="margin-top: -10px;">Staf Administrasi</p>
+        <p style="margin-top: -10px;">HERI PRIANA M.PD</p>
     </div>
 </body>
 </html>
