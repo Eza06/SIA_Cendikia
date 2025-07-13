@@ -105,31 +105,33 @@ class GuruController extends Controller
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'alamat' => 'nullable|string',
             'no_telpon' => 'nullable|string',
+            'email' => 'required|email',
+            'mapel_id' => 'required|array',
+            'mapel_id.*' => 'exists:mapel,id',
         ]);
 
         $guru = Guru::findOrFail($id);
         $user = $guru->user;
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
+        // Update user data
+        $user->name = $request->name;
+        $user->email = $request->email;
+
         if ($request->filled('password')) {
-            $userData['password'] = bcrypt($request->password);
+            $user->password = bcrypt($request->password); // Password baru
         }
 
+        $user->save(); // <-- penting!
 
-
-        // $user->save();
-
+        // Update guru data
         $guru->update([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'mapel_id' => $request->mapel_id,
             'jenis_kelamin' => $request->jenis_kelamin,
             'alamat' => $request->alamat,
             'no_telpon' => $request->no_telpon,
         ]);
+
+        // Update mapel relasi
+        $guru->mapels()->sync($request->mapel_id);
 
         return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
     }
