@@ -6,20 +6,16 @@
         <!-- Navbar -->
         <x-navbar></x-navbar>
         <div class="content-wrapper">
-
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-                <h4 class="fw-bold py-3 mb-4">
-                    Absensi
-                </h4>
+                <h4 class="fw-bold py-3 mb-4">Absensi</h4>
+
                 <div class="card">
                     <div class="card-body">
-                    </div>
-                    <div class="card-body">
                         <div class="container">
-                            <h4 class="mb-4">Absensi Kelas {{ $jadwal->kelasbelajar->nama_kelas ?? 'Tidak Ditemukan' }}
-                                {{ $jadwal->mapel->name }}</h4>
-                            <h4 class="mb-4">Materi Pelajaran {{ $jadwal->materi }}</h4>
+                            <h4 class="mb-4">Absensi Kelas {{ $jadwal->kelasbelajar->nama_kelas ?? 'Tidak Ditemukan' }} {{ $jadwal->mapel->name }}</h4>
+                            <h4 class="mb-4">Materi Pelajaran: {{ $jadwal->materi }}</h4>
+
                             <div class="mb-4">
                                 <strong>Hari / Tanggal:</strong> {{ $jadwal->hari }},
                                 {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d F Y') }}<br>
@@ -56,26 +52,19 @@
                                                     <td>{{ $siswa->user->name }}</td>
                                                     <td>
                                                         @php
-                                                            $selectedStatus =
-                                                                old("absen.{$siswa->id}.status") ??
-                                                                ($absens[$siswa->id]->status ?? '');
+                                                            $selectedStatus = old("absen.{$siswa->id}.status") ?? ($absens[$siswa->id]->status ?? '');
                                                         @endphp
-                                                        <select name="absen[{{ $siswa->id }}][status]"
-                                                            class="form-select" required>
-                                                            <option value="HADIR"
-                                                                {{ $selectedStatus == 'HADIR' ? 'selected' : '' }}>Hadir
-                                                            </option>
-                                                            <option value="IZIN"
-                                                                {{ $selectedStatus == 'IZIN' ? 'selected' : '' }}>Izin
-                                                            </option>
-                                                            <option value="TANPA KETERANGAN"
-                                                                {{ $selectedStatus == 'TANPA KETERANGAN' ? 'selected' : '' }}>
-                                                                Tanpa Keterangan</option>
+                                                        <select name="absen[{{ $siswa->id }}][status]" class="form-select" required>
+                                                            <option value="HADIR" {{ $selectedStatus == 'HADIR' ? 'selected' : '' }}>Hadir</option>
+                                                            <option value="IZIN" {{ $selectedStatus == 'IZIN' ? 'selected' : '' }}>Izin</option>
+                                                            <option value="TANPA KETERANGAN" {{ $selectedStatus == 'TANPA KETERANGAN' ? 'selected' : '' }}>Tanpa Keterangan</option>
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="absen[{{ $siswa->id }}][keterangan]"
-                                                            class="form-control" placeholder="Opsional">
+                                                        @php
+                                                            $keterangan = old("absen.{$siswa->id}.keterangan") ?? ($absens[$siswa->id]->keterangan ?? '');
+                                                        @endphp
+                                                        <input type="text" name="absen[{{ $siswa->id }}][keterangan]" class="form-control" placeholder="Opsional" value="{{ $keterangan }}">
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -87,12 +76,28 @@
                                     <button type="submit" class="btn btn-primary mt-3">Simpan Absen</button>
                                 @endif
                             </form>
-
                         </div>
                     </div>
                 </div>
             </div>
-            <!--/ Bordered Table -->
         </div>
     </div>
+
+    {{-- Optional: Script untuk mengosongkan keterangan jika status diubah ke HADIR --}}
+    @push('script')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const selects = document.querySelectorAll('select[name^="absen"]');
+
+                selects.forEach(select => {
+                    select.addEventListener('change', function () {
+                        if (this.value === 'HADIR') {
+                            const input = this.closest('tr').querySelector('input[name$="[keterangan]"]');
+                            if (input) input.value = '';
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
 @endsection
