@@ -156,9 +156,9 @@ class SiswaController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $request->validate([
             'name' => 'required|string|max:255',
+            'email' => 'required|email',
             'jenis_kelamin' => 'required',
             'asal_sekolah' => 'required',
             'alamat' => 'required|string',
@@ -171,20 +171,19 @@ class SiswaController extends Controller
         $siswa = Siswa::findOrFail($id);
         $user = $siswa->user;
 
-        // Update user (hanya name)
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
+        // Update user
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        // Kalau password diisi, update
         if ($request->filled('password')) {
-            $userData['password'] = bcrypt($request->password);
+            $user->password = bcrypt($request->password);
         }
 
+        $user->save(); // <-- penting!
 
-        // Update siswa
+        // Update data siswa
         $siswa->update([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'jenis_kelamin' => $request->jenis_kelamin,
             'asal_sekolah' => $request->asal_sekolah,
             'alamat' => $request->alamat,
@@ -196,6 +195,7 @@ class SiswaController extends Controller
 
         return redirect()->route('admin.siswa.index')->with('success', 'Data murid berhasil diperbarui.');
     }
+
 
 
     /**
