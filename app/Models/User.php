@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'last_session_id',
     ];
 
     public function siswa()
@@ -55,6 +56,7 @@ public function guru()
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_session_id' => 'string',
         ];
     }
 }

@@ -20,15 +20,20 @@ use App\Http\Controllers\Siswa\SiswaController as SiswaSiswaController;
 use App\Http\Controllers\Siswa\SettingController as SiswaSettingController;
 use App\Http\Controllers\SiswaController;
 
+// =================== ROOT ===================
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// =================== LOGIN AUTH ===================
+// =================== LOGIN & AUTH ===================
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Login ganda (langsung dari login page)
+Route::post('/force-login-proceed', [LoginController::class, 'forceLogin'])->name('force.login.proceed');
+
+// =================== LOGIN KHUSUS ===================
 Route::get('/login-guru', [LoginGuruController::class, 'showLoginForm'])->name('login.guru');
 Route::post('/login-guru', [LoginGuruController::class, 'login'])->name('login.guru.process');
 Route::post('/logout-guru', [LoginGuruController::class, 'logout'])->name('logout.guru');
@@ -37,6 +42,7 @@ Route::get('/login-siswa', [LoginSiswaController::class, 'index'])->name('login.
 Route::post('/login-siswa', [LoginSiswaController::class, 'login'])->name('login.siswa.process');
 Route::post('/logout-siswa', [LoginSiswaController::class, 'logout'])->name('logout.siswa');
 
+// =================== LUPA PASSWORD ===================
 Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'handleForm'])->name('password.manual');
 
@@ -44,102 +50,39 @@ Route::post('/forgot-password', [ForgotPasswordController::class, 'handleForm'])
 Route::middleware(['auth', 'IsAdmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    Route::resource('siswa', SiswaController::class)->names([
-        'index' => 'siswa.index',
-        'create' => 'siswa.create',
-        'store' => 'siswa.store',
-        'show' => 'siswa.show',
-        'edit' => 'siswa.edit',
-        'update' => 'siswa.update',
-        'destroy' => 'siswa.destroy',
-    ]);
-
+    Route::resource('siswa', SiswaController::class);
     Route::get('/get-siswa-by-kelas', [SiswaController::class, 'getSiswaByKelas']);
     Route::delete('/siswa/delete-selected', [SiswaController::class, 'deleteSelected'])->name('siswa.deleteSelected');
 
-    Route::resource('angkatan', AngkatanController::class)->names([
-        'index' => 'angkatan.index',
-        'store' => 'angkatan.store',
-        'update' => 'angkatan.update',
-        'destroy' => 'angkatan.destroy',
-    ]);
-
-    Route::resource('raport', RaporToController::class)->names([
-        'index' => 'raport.index',
-        'create' => 'raport.create',
-        'store' => 'raport.store',
-        'show' => 'raport.show',
-        'edit' => 'raport.edit',
-        'update' => 'raport.update',
-        'destroy' => 'raport.destroy',
-    ]);
+    Route::resource('angkatan', AngkatanController::class);
+    Route::resource('raport', RaporToController::class);
     Route::get('/raport/{rapor}/siswa/{siswa}/cetak', [RaporToController::class, 'cetakPerSiswa'])->name('raport.cetak.siswa');
 
-    // ========== SETTINGS (Admin) ==========
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::post('/settings/store', [SettingsController::class, 'store'])->name('settings.store');
     Route::delete('/settings/{id}', [SettingsController::class, 'destroy'])->name('settings.destroy');
 
-    // ========== GURU (Admin Manage) ==========
-    Route::resource('guru', GuruController::class)->names([
-        'index' => 'guru.index',
-        'create' => 'guru.create',
-        'store' => 'guru.store',
-        'edit' => 'guru.edit',
-        'update' => 'guru.update',
-        'destroy' => 'guru.destroy',
-    ]);
-
-    // ========== MATA PELAJARAN ==========
-    Route::resource('mapel', MapelController::class)->names([
-        'index' => 'mapel.index',
-        'store' => 'mapel.store',
-        'update' => 'mapel.update',
-        'destroy' => 'mapel.destroy',
-    ]);
-
-    // ========== JADWAL ==========
-    Route::resource('jadwal', JadwalController::class)->names([
-        'index' => 'jadwal.index',
-        'create' => 'jadwal.create',
-        'store' => 'jadwal.store',
-        'edit' => 'jadwal.edit',
-        'update' => 'jadwal.update',
-        'destroy' => 'jadwal.destroy',
-    ]);
+    Route::resource('guru', GuruController::class);
+    Route::resource('mapel', MapelController::class);
+    Route::resource('jadwal', JadwalController::class);
     Route::patch('jadwal/{id}/toggle-status', [JadwalController::class, 'toggleStatus'])->name('jadwal.toggleStatus');
-
-    // ========== KELAS BELAJAR ==========
-    Route::resource('kelasbelajar', KelasBelajarController::class)->names([
-        'index' => 'kelasbelajar.index',
-        'store' => 'kelasbelajar.store',
-        'update' => 'kelasbelajar.update',
-        'destroy' => 'kelasbelajar.destroy',
-    ]);
+    Route::resource('kelasbelajar', KelasBelajarController::class);
 });
 
 // =================== GURU ===================
-Route::middleware(['auth','IsGuru'])->prefix('guru')->name('guru.')->group(function () {
+Route::middleware(['auth', 'IsGuru'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruGuruController::class, 'index'])->name('dashboard');
     Route::put('/jadwal/{id}/materi', [GuruGuruController::class, 'updateMateri'])->name('jadwal.materi.update');
 
-    Route::resource('settings', GuruSettingsController::class)->names([
-        'index' => 'settings',
-    ]);
+    Route::resource('settings', GuruSettingsController::class)->only(['index']);
     Route::put('settings', [GuruSettingsController::class, 'update'])->name('settings.update');
 
-    Route::resource('absen', GuruAbsenController::class)->names([
-        'edit' => 'absen.edit',
-        'update' => 'absen.update',
-    ]);
+    Route::resource('absen', GuruAbsenController::class)->only(['edit', 'update']);
 });
 
 // =================== SISWA ===================
-Route::middleware(['IsSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
+Route::middleware(['auth', 'IsSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaSiswaController::class, 'index'])->name('dashboard');
-
-    Route::resource('settings', SiswaSettingController::class)->names([
-        'index' => 'settings',
-    ]);
+    Route::resource('settings', SiswaSettingController::class)->only(['index']);
     Route::put('settings', [SiswaSettingController::class, 'update'])->name('settings.update');
 });

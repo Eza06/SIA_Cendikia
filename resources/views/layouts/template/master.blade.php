@@ -14,6 +14,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="sweetalert2.min.js"></script>
     <link rel="stylesheet" href="sweetalert2.min.css">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -41,17 +42,13 @@
 
     <!-- Ekstra -->
     <script src="sweetalert2.min.js"></script>
-    <!-- jQuery (wajib sebelum DataTables) -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
-    <!-- DataTables CSS & JS -->
+    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-    <!-- Tables & jQuery -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
@@ -85,14 +82,66 @@
 
     <!-- Main JS -->
     <script src="{{ asset('sneat/assets/js/main.js') }}"></script>
-
-    <!-- Page JS -->
     <script src="{{ asset('sneat/assets/js/dashboards-analytics.js') }}"></script>
 
     <!-- Ekstra -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 
+    <!-- Idle Timer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/idle-timer/2.0.1/idle-timer.min.js"></script>
+    <script>
+        const idleTimeout = 15 * 60 * 1000; 
+        const logoutTimeout = 30 * 60 * 1000;
+        let idleWarned = false;
+        let logoutTimer = null;
+
+        $(document).ready(function () {
+            $(document).idle({
+                onIdle: function () {
+                    if (!idleWarned) {
+                        idleWarned = true;
+
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tidak ada aktivitas',
+                            text: 'Anda akan logout otomatis jika tidak aktif dalam 15 menit.',
+                            timer: 10000,
+                            showConfirmButton: false
+                        });
+
+                        logoutTimer = setTimeout(function () {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Sesi Berakhir',
+                                text: 'Anda telah logout otomatis.',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+
+                            setTimeout(function () {
+                                document.getElementById('logout-form').submit();
+                            }, 3000);
+                        }, 15 * 60 * 1000);
+                    }
+                },
+                onActive: function () {
+                    if (idleWarned) {
+                        idleWarned = false;
+                        clearTimeout(logoutTimer);
+                    }
+                },
+                idle: idleTimeout
+            });
+        });
+    </script>
+
+    <!-- Hidden Logout Form -->
+    @auth
+        <form id="logout-form" action="{{ route(auth()->user()->role == 'ADMIN' ? 'logout' : (auth()->user()->role == 'GURU' ? 'logout.guru' : 'logout.siswa')) }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    @endauth
+
     @stack('script')
 </body>
-
 </html>
