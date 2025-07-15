@@ -33,6 +33,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Login ganda (langsung dari login page)
 Route::post('/force-login-proceed', [LoginController::class, 'forceLogin'])->name('force.login.proceed');
 Route::post('/force-login-proceed-guru', [LoginGuruController::class, 'forceLogin'])->name('force.login.proceed.guru');
+Route::post('/force-login-proceed-siswa', [LoginSiswaController::class, 'forceLogin'])->name('force.login.proceed.siswa');
+
 
 // =================== LOGIN KHUSUS ===================
 Route::get('/login-guru', [LoginGuruController::class, 'showLoginForm'])->name('login.guru');
@@ -87,6 +89,12 @@ Route::middleware(['auth', 'IsGuru'])->prefix('guru')->name('guru.')->group(func
 // =================== SISWA ===================
 Route::middleware(['auth', 'IsSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaSiswaController::class, 'index'])->name('dashboard');
-    Route::resource('settings', SiswaSettingController::class)->only(['index']);
+
+
+    Route::resource('settings', SiswaSettingController::class)->only(['index'])->names([
+        'index' => 'settings',
+    ]);
+
     Route::put('settings', [SiswaSettingController::class, 'update'])->name('settings.update');
 });
+

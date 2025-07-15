@@ -31,7 +31,7 @@ class LoginGuruController extends Controller
 
         $currentSessionId = session()->getId();
 
-        if ($user->last_session_id && $user->last_session_id !== $currentSessionId) {
+        if (! is_null($user->last_session_id) && $user->last_session_id !== $currentSessionId) {
             session([
                 'force_login_user_id_guru' => $user->id,
                 'force_login_email_guru' => $user->email,
@@ -43,7 +43,7 @@ class LoginGuruController extends Controller
         }
         Auth::login($user);
         $request->session()->regenerate();
-        $user->last_session_id = $currentSessionId;
+        $user->last_session_id = session()->getId();
         $user->save();
 
         return redirect()->route('guru.dashboard');

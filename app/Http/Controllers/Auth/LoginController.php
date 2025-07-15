@@ -32,7 +32,7 @@ class LoginController extends Controller
 
         $currentSessionId = session()->getId();
 
-        if ($user->last_session_id && $user->last_session_id !== $currentSessionId) {
+        if (! is_null($user->last_session_id) && $user->last_session_id !== $currentSessionId) {
             session([
                 'pending_login_user_id' => $user->id,
                 'pending_login_email'   => $user->email,
