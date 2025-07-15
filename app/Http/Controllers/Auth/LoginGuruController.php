@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class LoginGuruController extends Controller
 {
@@ -13,7 +16,6 @@ class LoginGuruController extends Controller
         return view('auth.loginguru');
     }
 
-    // Menangani proses login guru
     public function login(Request $request)
     {
         $request->validate([
@@ -21,24 +23,78 @@ class LoginGuruController extends Controller
             'password' => 'required',
         ]);
 
-        // Login dengan tambahan kondisi role guru
-        $credentials = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->where('role', 'GURU')->first();
 
-        if (Auth::attempt(array_merge($credentials, ['role' => 'GURU']))) {
-            $request->session()->regenerate();
-            return redirect()->route('guru.dashboard'); // Ubah sesuai rute dashboard guru kamu
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['email' => 'Email atau password salah, atau Anda bukan guru.']);
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah, atau Anda bukan guru.',
-        ]);
+        $currentSessionId = session()->getId();
+
+        if ($user->last_session_id && $user->last_session_id !== $currentSessionId) {
+            session([
+                'force_login_user_id_guru' => $user->id,
+                'force_login_email_guru' => $user->email,
+                'force_login_name_guru' => $user->name,
+                'force_login_password_guru' => $request->password,
+            ]);
+
+            return redirect()->route('login.guru')->with('show_force_login_guru', true);
+        }
+        Auth::login($user);
+        $request->session()->regenerate();
+        $user->last_session_id = $currentSessionId;
+        $user->save();
+
+        return redirect()->route('guru.dashboard');
     }
 
-    // Logout guru
+    public function forceLogin(Request $request)
+    {
+        $email = session('force_login_email_guru');
+        $password = session('force_login_password_guru');
+
+        if (!$email || !$password) {
+            return redirect()->route('login.guru')->withErrors(['email' => 'Data login tidak valid.']);
+        }
+
+        if (Auth::attempt(['email' => $email, 'password' => $password, 'role' => 'GURU'])) {
+            $user = Auth::user();
+            session()->regenerate();
+
+            // Hapus sesi lama
+            if ($user->last_session_id) {
+                DB::table('sessions')->where('id', $user->last_session_id)->delete();
+            }
+
+            // Simpan sesi baru
+            $user->last_session_id = session()->getId();
+            $user->save();
+
+            // Bersihkan sesi sementara
+            session()->forget([
+                'force_login_user_id_guru',
+                'force_login_email_guru',
+                'force_login_name_guru',
+                'force_login_password_guru',
+            ]);
+
+            return redirect()->route('guru.dashboard');
+        }
+
+        return redirect()->route('login.guru')->withErrors(['email' => 'Login ulang gagal.']);
+    }
+
+
     public function logout(Request $request)
     {
-        Auth::logout();
+        $user = Auth::user();
+        if ($user) {
+            $user->last_session_id = null;
+            $user->save();
+        }
 
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

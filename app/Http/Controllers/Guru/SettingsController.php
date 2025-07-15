@@ -59,24 +59,24 @@ class SettingsController extends Controller
     {
         $user = Auth::user();
         $guru = $user->guru;
-    
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'alamat' => 'nullable|string',
             'no_telpon' => 'nullable|string',
         ]);
-    
+
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
         ]);
-    
+
         $guru->update([
             'alamat' => $request->alamat,
             'no_telpon' => $request->no_telpon,
         ]);
-    
+
         return back()->with('success', 'Data guru berhasil diperbarui.');
     }
 

@@ -32,26 +32,25 @@ class LoginController extends Controller
 
         $currentSessionId = session()->getId();
 
-        // Jika user sudah punya session yang berbeda
         if ($user->last_session_id && $user->last_session_id !== $currentSessionId) {
             session([
                 'pending_login_user_id' => $user->id,
                 'pending_login_email'   => $user->email,
                 'pending_login_name'    => $user->name,
-                'pending_login_password'=> $request->password, // hanya untuk sementara (harus hati-hati)
+                'pending_login_password'=> $request->password,
             ]);
 
             return redirect()->route('login')->with('show_force_login', true);
         }
 
-        // Login normal
         Auth::login($user);
         $request->session()->regenerate();
 
         $user->last_session_id = session()->getId();
         $user->save();
 
-        return $this->redirectByRole($user);
+        // ✅ Redirect langsung berdasarkan role
+        return $this->redirectToDashboard($user->role);
     }
 
     public function forceLogin(Request $request)
@@ -70,19 +69,16 @@ class LoginController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'Login ulang gagal.']);
         }
 
-        // Hapus sesi lama
         if ($user->last_session_id) {
             DB::table('sessions')->where('id', $user->last_session_id)->delete();
         }
 
-        // Login baru
         Auth::login($user);
         $request->session()->regenerate();
 
         $user->last_session_id = session()->getId();
         $user->save();
 
-        // Bersihkan data login sementara
         session()->forget([
             'pending_login_user_id',
             'pending_login_email',
@@ -90,7 +86,8 @@ class LoginController extends Controller
             'pending_login_password',
         ]);
 
-        return $this->redirectByRole($user);
+        // ✅ Redirect langsung berdasarkan role
+        return $this->redirectToDashboard($user->role);
     }
 
     public function logout(Request $request)
@@ -107,13 +104,11 @@ class LoginController extends Controller
         return redirect('/login');
     }
 
-    private function redirectByRole($user)
+    // ✅ Fungsi redirect singkat sebagai pengganti redirectByRole()
+    private function redirectToDashboard($role)
     {
-        return match ($user->role) {
+        return match ($role) {
             'ADMIN' => redirect()->route('admin.dashboard'),
-            'GURU'  => redirect()->route('guru.dashboard'),
-            'MURID' => redirect()->route('siswa.dashboard'),
-            default => redirect()->route('welcome'),
         };
     }
 }

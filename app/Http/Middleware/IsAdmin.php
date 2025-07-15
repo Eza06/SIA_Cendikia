@@ -17,7 +17,6 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
 
-        // echo "anjeng";
         // die();
 
         if (Auth::check() && Auth::user()->role === 'admin') {
@@ -26,7 +25,7 @@ class IsAdmin
         return $next($request);
 
         // return redirect('login');
-        
+
     }
-    
+
 }
