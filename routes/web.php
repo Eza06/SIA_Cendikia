@@ -45,9 +45,18 @@ Route::get('/login-siswa', [LoginSiswaController::class, 'index'])->name('login.
 Route::post('/login-siswa', [LoginSiswaController::class, 'login'])->name('login.siswa.process');
 Route::post('/logout-siswa', [LoginSiswaController::class, 'logout'])->name('logout.siswa');
 
-// =================== LUPA PASSWORD ===================
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
-Route::post('/forgot-password', [ForgotPasswordController::class, 'handleForm'])->name('password.manual');
+// =================== LUPA PASSWORD (UPDATED) ===================
+Route::middleware('guest')->group(function () {
+    // Menampilkan halaman lupa password
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
+
+    // Mengirim kode verifikasi ke email
+    Route::post('/forgot-password/send-code', [ForgotPasswordController::class, 'sendResetCode'])->name('password.send.code');
+
+    // Memproses reset password dengan kode verifikasi
+    Route::post('/reset-password-with-code', [ForgotPasswordController::class, 'resetPasswordWithCode'])->name('password.handle');
+});
+
 
 // =================== ADMIN ===================
 Route::middleware(['auth', 'IsAdmin'])->prefix('admin')->name('admin.')->group(function () {
@@ -97,4 +106,3 @@ Route::middleware(['auth', 'IsSiswa'])->prefix('siswa')->name('siswa.')->group(f
 
     Route::put('settings', [SiswaSettingController::class, 'update'])->name('settings.update');
 });
-

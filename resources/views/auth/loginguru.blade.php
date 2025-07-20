@@ -98,7 +98,7 @@
             Swal.fire({
                 title: 'Akun sedang aktif di perangkat lain!',
                 html: `<b>{{ session('force_login_name_guru') }}</b><br>{{ session('force_login_email_guru') }}<br><br>
-                   Ingin melanjutkan login dan mengeluarkan sesi sebelumnya?`,
+                       Ingin melanjutkan login dan mengeluarkan sesi sebelumnya?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Login Saja',
@@ -129,6 +129,33 @@
     <script src="{{ asset('sneat') }}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
     <script src="{{ asset('sneat') }}/assets/vendor/js/menu.js"></script>
     <script src="{{ asset('sneat') }}/assets/js/main.js"></script>
+
+    <!-- JAVASCRIPT TAMBAHAN UNTUK LIHAT PASSWORD -->
+    <script>
+        $(document).ready(function() {
+            // Ketika ikon mata di dalam .input-group-text di klik
+            $('.input-group-text').on('click', function() {
+                // Cari input password yang terdekat
+                var passwordInput = $(this).prev('input[type="password"], input[type="text"]');
+                // Cari ikon di dalam span yang di klik
+                var icon = $(this).find('i');
+
+                // Cek tipe input saat ini
+                if (passwordInput.attr('type') === 'password') {
+                    // Jika tipenya password, ubah ke text
+                    passwordInput.attr('type', 'text');
+                    // Ganti ikon mata dari 'hide' ke 'show'
+                    icon.removeClass('bx-hide').addClass('bx-show');
+                } else {
+                    // Jika tipenya text, ubah kembali ke password
+                    passwordInput.attr('type', 'password');
+                    // Ganti ikon mata dari 'show' ke 'hide'
+                    icon.removeClass('bx-show').addClass('bx-hide');
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>
