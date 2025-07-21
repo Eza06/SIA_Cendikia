@@ -2,7 +2,7 @@
 
 @section('title', 'Guru')
 @section('content')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>:
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @if (session('success'))
     <script>
         Swal.fire({
@@ -30,9 +30,6 @@
                         <div class="d-xl-flex align-items-center mb-4 d-block">
                             <a href="{{ route('admin.guru.create') }}" class="btn btn-primary d-flex align-items-center"><i
                                     class='bx bx-add-to-queue me-1'></i> Tambah Guru</a>
-                            {{-- <a href="#" id="deleteAll" class="btn btn-danger d-flex align-items-center ms-2"><i
-                                    class='bx bx-trash me-1'></i> Delete
-                                Selected</a> --}}
                         </div>
                     </div>
                     <div class="card-body">
@@ -45,8 +42,6 @@
                                         <th>Kode Guru</th>
                                         <th>Nama</th>
                                         <th>Mata Pelajaran</th>
-                                        {{-- <th>Jenjang</th>
-                                        <th>Kelas</th> --}}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -56,13 +51,11 @@
                                             <td>
                                                 <strong>{{ $gurus->kode_guru }}</strong>
                                             </td>
-                                            <td><strong>{{ strtoupper($gurus->user->name) }}</strong></td>
+                                            {{-- PERBAIKAN 1: Menggunakan optional() --}}
+                                            <td><strong>{{ strtoupper(optional($gurus->user)->name ?? '[User Dihapus]') }}</strong></td>
                                             <td>
                                                 <strong>{{ strtoupper($gurus->mapels->pluck('name')->implode(', ')) }}</strong>
                                             </td>
-
-                                            {{-- <td>{{ strtoupper($gurus->jenjang) }}</td>
-                                            <td>{{ strtoupper($gurus->kelas) }}</td> --}}
                                             <td class="d-flex">
                                                 <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal"
                                                     data-bs-target="#modalDetail{{ $gurus->id }}">
@@ -83,21 +76,17 @@
                                                                 <div><strong>KODE GURU : </strong> {{ $gurus->kode_guru }}
                                                                 </div>
                                                                 <hr>
-                                                                <div><strong>NAMA : </strong> {{ strtoupper($gurus->user->name) }}
+                                                                {{-- PERBAIKAN 2: Menggunakan optional() --}}
+                                                                <div><strong>NAMA : </strong> {{ strtoupper(optional($gurus->user)->name ?? '[User Dihapus]') }}
                                                                 </div>
                                                                 <hr>
                                                                 <div><strong>PELAJARAN : </strong>
                                                                     {{ strtoupper($gurus->mapels->pluck('name')->implode(', ')) }}
                                                                 </div>
                                                                 <hr>
-                                                                {{-- <div><strong>JENJANG : </strong>
-                                                                    {{ $gurus->jenjang }}</div>
-                                                                <hr>
-                                                                <div><strong>KELAS : </strong>
-                                                                    {{strtoupper( $gurus->jenis_kelamin) }}</div>
-                                                                <hr> --}}
+                                                                {{-- PERBAIKAN 3: Menggunakan optional() --}}
                                                                 <div><strong>EMAIL : </strong>
-                                                                    {{ $gurus->user->email }}</div>
+                                                                    {{ optional($gurus->user)->email ?? '-' }}</div>
                                                                 <hr>
                                                                 <div><strong>TANGGAL BERGABUNG : </strong>
                                                                     {{ $gurus->created_at->format('d F Y') }}</div>

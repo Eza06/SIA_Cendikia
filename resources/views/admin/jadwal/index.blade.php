@@ -64,7 +64,7 @@
                                 @foreach ($guruList as $g)
                                     <option value="{{ $g->id }}"
                                         {{ request('guru_id') == $g->id ? 'selected' : '' }}>
-                                        {{ $g->user->name }}
+                                        {{ optional($g->user)->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -99,8 +99,6 @@
                     </div>
                 </form>
 
-                {{-- ...semua bagian sebelum ini tetap sama --}}
-
                 {{-- List Jadwal --}}
                 <div class="row">
                     @forelse ($jadwal as $jadwals)
@@ -108,10 +106,12 @@
                             <div class="card shadow-sm border rounded-3">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary mt-3 mb-3 d-flex align-items-center">
-                                        <i class="bx bx-book me-2"></i> {{ $jadwals->mapel->name ?? '[Mapel dihapus]' }}
+                                        {{-- PERBAIKAN 1 --}}
+                                        <i class="bx bx-book me-2"></i> {{ optional($jadwals->mapel)->name ?? '[Mapel Dihapus]' }}
                                     </h5>
+                                    {{-- PERBAIKAN 2 --}}
                                     <div><strong>Nama Pengajar:</strong>
-                                        {{ $jadwals->guru->user->name ?? '[Guru dihapus]' }}</div>
+                                        {{ optional(optional($jadwals->guru)->user)->name ?? '[Guru Dihapus]' }}</div>
                                     <hr>
                                     <div><strong>Jenjang:</strong> {{ $jadwals->jenjang }}</div>
                                     <hr>
@@ -177,12 +177,13 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p><strong>Mapel:</strong> {{ $jadwals->mapel->name ?? '-' }}</p>
-                                                <p><strong>Guru:</strong> {{ $jadwals->guru->user->name ?? '-' }}</p>
+                                                {{-- PERBAIKAN 3 & 4 --}}
+                                                <p><strong>Mapel:</strong> {{ optional($jadwals->mapel)->name ?? '-' }}</p>
+                                                <p><strong>Guru:</strong> {{ optional(optional($jadwals->guru)->user)->name ?? '-' }}</p>
                                                 <p><strong>Jenjang:</strong> {{ $jadwals->jenjang }}</p>
                                                 <p><strong>Kelas:</strong> {{ $jadwals->kelas }}</p>
                                                 <p><strong>Kelas Belajar:</strong>
-                                                    {{ $jadwals->kelasBelajar->nama_kelas ?? '-' }}</p>
+                                                    {{ optional($jadwals->kelasBelajar)->nama_kelas ?? '-' }}</p>
                                             </div>
                                             <div class="col-md-6">
                                                 <p><strong>Hari:</strong> {{ $jadwals->hari }}</p>
@@ -222,7 +223,8 @@
                                                         @foreach ($jadwals->absen as $i => $absen)
                                                             <tr>
                                                                 <td>{{ $i + 1 }}</td>
-                                                                <td>{{ $absen->siswa->user->name ?? '-' }}</td>
+                                                                {{-- PERBAIKAN 5 --}}
+                                                                <td>{{ optional(optional($absen->siswa)->user)->name ?? '-' }}</td>
                                                                 <td>{{ $absen->status }}</td>
                                                                 <td>{{ $absen->keterangan ?? '-' }}</td>
                                                             </tr>

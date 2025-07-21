@@ -1,5 +1,6 @@
 @extends('layouts.template.master')
 
+@section('title', 'Tambah Jadwal')
 @section('content')
     <div class="layout-page">
         <x-navbar></x-navbar>
@@ -20,7 +21,8 @@
                                             $mapels = $g->mapels->map(fn($m) => ['id' => $m->id, 'name' => $m->name]);
                                         @endphp
                                         <option value="{{ $g->id }}" data-mapels='@json($mapels)'>
-                                            {{ $g->user->name }}
+                                            {{-- PERBAIKAN DI SINI --}}
+                                            {{ optional($g->user)->name ?? '[User Dihapus]' }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -63,7 +65,7 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="kelas" class="mb-2">Kelas Belajar</label>
+                                <label for="kelas_belajar_id" class="mb-2">Kelas Belajar</label>
                                 <select class="form-control" name="kelas_belajar_id" id="kelas_belajar_id" required>
                                     <option value="">-- Pilih Kelas Belajar --</option>
                                     @foreach ($kelasBelajar as $kelas)
@@ -212,7 +214,7 @@
 
                     // Validasi jenjang juga agar tidak campur
                     if (regex.test(nama) && kelasByJenjang[currentJenjang].includes(
-                        selectedKelas)) {
+                            selectedKelas)) {
                         kelasBelajarSelect.appendChild(option.cloneNode(true));
                     }
                 });
