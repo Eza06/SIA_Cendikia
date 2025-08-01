@@ -47,14 +47,16 @@ Route::post('/logout-siswa', [LoginSiswaController::class, 'logout'])->name('log
 
 // =================== LUPA PASSWORD (UPDATED) ===================
 Route::middleware('guest')->group(function () {
-    // Menampilkan halaman lupa password
+    // --- Rute untuk Admin & Guru (dengan kode verifikasi) ---
     Route::get('/forgot-password', [ForgotPasswordController::class, 'showForm'])->name('password.request');
-
-    // Mengirim kode verifikasi ke email
     Route::post('/forgot-password/send-code', [ForgotPasswordController::class, 'sendResetCode'])->name('password.send.code');
-
-    // Memproses reset password dengan kode verifikasi
     Route::post('/reset-password-with-code', [ForgotPasswordController::class, 'resetPasswordWithCode'])->name('password.handle');
+
+    // --- [BARU] Rute untuk Siswa (tanpa kode verifikasi) ---
+    Route::get('/lupa-password/siswa', [ForgotPasswordController::class, 'showStudentForgotForm'])->name('password.request.siswa');
+    Route::post('/lupa-password/siswa', [ForgotPasswordController::class, 'handleStudentEmail'])->name('password.email.siswa');
+    Route::get('/reset-password/siswa', [ForgotPasswordController::class, 'showStudentResetForm'])->name('password.reset.siswa');
+    Route::post('/reset-password/siswa', [ForgotPasswordController::class, 'updateStudentPassword'])->name('password.update.siswa');
 });
 
 

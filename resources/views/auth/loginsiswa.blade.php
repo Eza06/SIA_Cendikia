@@ -74,11 +74,10 @@
                             <div class="mb-3 form-password-toggle">
                                 <div class="d-flex justify-content-between">
                                     <label class="form-label" for="password">Password</label>
-                                    @if (Route::has('password.request'))
-                                        <a href="{{ route('password.request') }}">
-                                            <small>Forgot Password?</small>
-                                        </a>
-                                    @endif
+                                    {{-- [DIPERBARUI] Mengarahkan ke route lupa password khusus siswa --}}
+                                    <a href="{{ route('password.request.siswa') }}">
+                                        <small>Lupa Password?</small>
+                                    </a>
                                 </div>
                                 <div class="input-group input-group-merge">
                                     <input type="password" id="password"
@@ -110,7 +109,7 @@
                 Swal.fire({
                     title: 'Akun sedang aktif di perangkat lain!',
                     html: `<b>{{ session('force_login_name_siswa') }}</b><br>{{ session('force_login_email_siswa') }}<br><br>
-                           Ingin melanjutkan login dan mengeluarkan sesi sebelumnya?`,
+                            Ingin melanjutkan login dan mengeluarkan sesi sebelumnya?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Login Saja',
