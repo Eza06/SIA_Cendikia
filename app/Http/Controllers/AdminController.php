@@ -1,98 +1,98 @@
 <?php
-
 namespace App\Http\Controllers;
 
+// Model yang dibutuhkan untuk mengambil data
 use App\Models\Absen;
 use App\Models\Guru;
 use App\Models\Mapel;
 use App\Models\Siswa;
 use App\Models\User;
+
+// Class bawaan Laravel
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan halaman dashboard admin beserta data statistik untuk grafik.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        $user = Auth::user();
+        // --- Data Pengguna & Statistik Umum ---
+        $user        = Auth::user();
         $jumlahSiswa = Siswa::count();
-        $jumlahGuru = Guru::count();
-        $mapelAll = Mapel::count();
-    
-        // Hitung jumlah kehadiran dan persentase (misalnya dari semua absensi)
+        $jumlahGuru  = Guru::count();
+        $mapelAll    = Mapel::count();
+
+        // --- Kalkulasi Data untuk Pie Chart Kehadiran ---
+
+        // 1. Hitung total absensi sebagai dasar pembagian
         $totalAbsensi = Absen::count();
+
+        // 2. Hitung jumlah untuk setiap status yang Anda gunakan
         $jumlahHadir = Absen::where('status', 'HADIR')->count();
-        $rateHadir = $totalAbsensi > 0 ? round(($jumlahHadir / $totalAbsensi) * 100, 2) : 0;
-        return view('admin.dashboard', compact('jumlahSiswa', 'jumlahGuru', 'rateHadir', 'user', 'mapelAll'));
+        $jumlahIzin  = Absen::where('status', 'IZIN')->count();
+        // Diperbarui: Mencari status 'TANPA KETERANGAN'
+        $jumlahTanpaKeterangan = Absen::where('status', 'TANPA KETERANGAN')->count();
+
+        // 3. Kalkulasi persentase untuk setiap status
+        $persentaseHadir           = $totalAbsensi > 0 ? round(($jumlahHadir / $totalAbsensi) * 100, 1) : 0;
+        $persentaseIzin            = $totalAbsensi > 0 ? round(($jumlahIzin / $totalAbsensi) * 100, 1) : 0;
+        $persentaseTanpaKeterangan = $totalAbsensi > 0 ? round(($jumlahTanpaKeterangan / $totalAbsensi) * 100, 1) : 0;
+
+        // 4. Kirim semua data ke view
+        return view('admin.dashboard', compact(
+            'user',
+            'jumlahSiswa',
+            'jumlahGuru',
+            'mapelAll',
+            'persentaseHadir',
+            'persentaseIzin',
+            'persentaseTanpaKeterangan' // Variabel baru dikirim
+        ));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Menyimpan data admin baru ke dalam database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
     public function storeAdmin(Request $request)
     {
+        // Validasi input dari form
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
         ]);
 
+        // Membuat user baru dengan role 'ADMIN'
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => 'ADMIN',
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => bcrypt($request->password), // Enkripsi password untuk keamanan
+            'role'     => 'ADMIN',
         ]);
 
+        // Kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', 'Admin berhasil ditambahkan.');
     }
 
-
-    /**
-     * Display the specified resource.
-     */
+    // Fungsi-fungsi lain yang tidak digunakan bisa dibiarkan kosong atau dihapus
+    public function create()
+    { /* ... */}
+    public function store(Request $request)
+    { /* ... */}
     public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
+    { /* ... */}
     public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
+    { /* ... */}
     public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    { /* ... */}
     public function destroy(string $id)
-    {
-        //
-    }
+    { /* ... */}
 }

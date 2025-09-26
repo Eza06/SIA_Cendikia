@@ -23,7 +23,7 @@
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
                 <h4 class="fw-bold py-3 mb-4">
-                    Guru
+                    Data Guru
                 </h4>
             <div class="card">
                     <div class="card-header d-xl-block">
@@ -31,8 +31,6 @@
                             <a href="{{ route('admin.guru.create') }}" class="btn btn-primary d-flex align-items-center"><i
                                     class='bx bx-add-to-queue me-1'></i> Tambah Guru</a>
                         </div>
-                    </div>
-                    <div class="card-body">
                     </div>
                     <div class="card-body">
                         <div class="table-responsive text-nowrap">
@@ -51,7 +49,6 @@
                                             <td>
                                                 <strong>{{ $gurus->kode_guru }}</strong>
                                             </td>
-                                            {{-- PERBAIKAN 1: Menggunakan optional() --}}
                                             <td><strong>{{ strtoupper(optional($gurus->user)->name ?? '[User Dihapus]') }}</strong></td>
                                             <td>
                                                 <strong>{{ strtoupper($gurus->mapels->pluck('name')->implode(', ')) }}</strong>
@@ -76,7 +73,6 @@
                                                                 <div><strong>KODE GURU : </strong> {{ $gurus->kode_guru }}
                                                                 </div>
                                                                 <hr>
-                                                                {{-- PERBAIKAN 2: Menggunakan optional() --}}
                                                                 <div><strong>NAMA : </strong> {{ strtoupper(optional($gurus->user)->name ?? '[User Dihapus]') }}
                                                                 </div>
                                                                 <hr>
@@ -84,7 +80,6 @@
                                                                     {{ strtoupper($gurus->mapels->pluck('name')->implode(', ')) }}
                                                                 </div>
                                                                 <hr>
-                                                                {{-- PERBAIKAN 3: Menggunakan optional() --}}
                                                                 <div><strong>EMAIL : </strong>
                                                                     {{ optional($gurus->user)->email ?? '-' }}</div>
                                                                 <hr>
@@ -130,7 +125,9 @@
         </div>
     </div>
 @endsection
+
 @push('script')
+{{-- Skrip untuk konfirmasi hapus (tetap di sini) --}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const deleteButtons = document.querySelectorAll('.show_confirm');
@@ -155,14 +152,6 @@
         });
     });
 </script>
-<script>
-    $(document).ready(function () {
-        $('#myTable').DataTable({
-            responsive: true,
-            paging: true,
-            searching: true,
-            ordering: true,
-        });
-    });
-</script>
+
 @endpush
+
