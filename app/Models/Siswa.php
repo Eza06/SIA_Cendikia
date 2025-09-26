@@ -21,7 +21,7 @@ class Siswa extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'users_id'); // ganti 'users_id' kalau pakai user_id
+        return $this->belongsTo(User::class, 'users_id');
     }
 
 

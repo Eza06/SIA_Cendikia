@@ -1,124 +1,101 @@
 @extends('layouts.template.master')
 
+@section('title', 'Edit Siswa')
 @section('content')
+
     <div class="layout-page">
         <x-navbar></x-navbar>
         <div class="content-wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
+                <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Data Siswa /</span> Edit Data</h4>
+
                 <div class="card">
-                    <h5 class="card-header">Edit Murid</h5>
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Formulir Edit Data Siswa</h5>
+                    </div>
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <h6 class="alert-heading mb-1">Terdapat Kesalahan Validasi:</h6>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form action="{{ route('admin.siswa.update', $siswa->id) }}" method="POST">
                             @csrf
                             @method('PUT')
-                            <div class="form-group mb-3">
-                                <label for="name" class="mb-2">Nama</label>
-                                <input type="text" class="form-control" name="name" id="name" value="{{ old('name', $siswa->user->name) }}" required>
-                                @error('name')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label class="mb-2">Jenis Kelamin</label>
-                                <div class="d-flex align-items-center">
-                                    <div class="form-check me-3">
-                                        <input type="radio" class="form-check-input" name="jenis_kelamin" id="laki" value="laki-laki" {{ old('jenis_kelamin', $siswa->jenis_kelamin) === 'laki-laki' ? 'checked' : '' }} required>
-                                        <label class="form-check-label" for="laki">Laki-laki</label>
+                            <div class="row">
+                                {{-- Kolom Kiri - Informasi Pribadi & Akun --}}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $siswa->user->name) }}" required>
                                     </div>
-                                    <div class="form-check">
-                                        <input type="radio" class="form-check-input" name="jenis_kelamin" id="perempuan" value="perempuan" {{ old('jenis_kelamin', $siswa->jenis_kelamin) === 'perempuan' ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="perempuan">Perempuan</label>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ old('email', $siswa->user->email) }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Password Baru</label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Kosongkan jika tidak diubah">
+                                    </div>
+                                     <div class="mb-3">
+                                        <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="jenis_kelamin" name="jenis_kelamin" required>
+                                            <option value="" disabled>-- Pilih --</option>
+                                            <option value="LAKI-LAKI" {{ old('jenis_kelamin', $siswa->jenis_kelamin) == 'LAKI-LAKI' ? 'selected' : '' }}>Laki-laki</option>
+                                            <option value="PEREMPUAN" {{ old('jenis_kelamin', $siswa->jenis_kelamin) == 'PEREMPUAN' ? 'selected' : '' }}>Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="no_telpon" class="form-label">No. Telepon <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="no_telpon" name="no_telpon" value="{{ old('no_telpon', $siswa->no_telpon) }}" required>
                                     </div>
                                 </div>
-                                @error('jenis_kelamin')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
 
-                            <div class="form-group mb-3">
-                                <label for="education_level" class="mb-2">Jenjang Pendidikan</label>
-                                <select class="form-control" name="education_level" id="education_level" required>
-                                    <option value="">-- Pilih Jenjang --</option>
-                                    <option value="SD" {{ old('education_level', $siswa->education_level) === 'SD' ? 'selected' : '' }}>SD</option>
-                                    <option value="SMP" {{ old('education_level', $siswa->education_level) === 'SMP' ? 'selected' : '' }}>SMP</option>
-                                    <option value="SMA" {{ old('education_level', $siswa->education_level) === 'SMA' ? 'selected' : '' }}>SMA</option>
-                                </select>
-                                @error('education_level')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
+                                {{-- Kolom Kanan - Informasi Akademik & Personal --}}
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="asal_sekolah" class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="asal_sekolah" name="asal_sekolah" value="{{ old('asal_sekolah', $siswa->asal_sekolah) }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="education_level" class="form-label">Jenjang Pendidikan <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="education_level" name="education_level" required>
+                                            <option value="" disabled>-- Pilih Jenjang --</option>
+                                            <option value="SD" {{ old('education_level', $siswa->education_level) == 'SD' ? 'selected' : '' }}>SD</option>
+                                            <option value="SMP" {{ old('education_level', $siswa->education_level) == 'SMP' ? 'selected' : '' }}>SMP</option>
+                                            <option value="SMA" {{ old('education_level', $siswa->education_level) == 'SMA' ? 'selected' : '' }}>SMA</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="kelas-container">
+                                        <label for="kelas" class="form-label">Kelas <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="kelas" name="kelas" required>
+                                            <option value="" disabled>-- Pilih Kelas --</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="kelas_belajar_id" class="form-label">Kelas Belajar <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="kelas_belajar_id" name="kelas_belajar_id" required>
+                                            <option value="" disabled>-- Pilih Kelas Belajar --</option>
+                                            @foreach($kelasBelajar as $kelas)
+                                                <option value="{{ $kelas->id }}" {{ old('kelas_belajar_id', $siswa->kelas_belajar_id) == $kelas->id ? 'selected' : '' }}>{{ $kelas->nama_kelas }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                     <div class="mb-3">
+                                        <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="alamat" name="alamat" rows="2" required>{{ old('alamat', $siswa->alamat) }}</textarea>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div class="form-group mb-3">
-                                <label for="kelas" class="mb-2">Kelas</label>
-                                <select class="form-control" name="kelas" id="kelas" required>
-                                    <option value="">-- Pilih Kelas --</option>
-                                </select>
-                                @error('kelas')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="kelas_belajar_id" class="mb-2">Kelas Belajar</label>
-                                <select class="form-control" name="kelas_belajar_id" id="kelas_belajar_id" required>
-                                    <option value="">-- Pilih Kelas Belajar --</option>
-                                    @foreach ($kelasBelajar as $kelas)
-                                        <option value="{{ $kelas->id }}"
-                                            {{ old('kelas_belajar_id', $siswa->kelas_belajar_id) == $kelas->id ? 'selected' : '' }}>
-                                            {{ $kelas->nama_kelas }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('kelas_belajar_id')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="asal_sekolah" class="mb-2">Asal Sekolah</label>
-                                <input type="text" class="form-control" name="asal_sekolah" id="asal_sekolah" value="{{ old('asal_sekolah', $siswa->asal_sekolah) }}" required>
-                                @error('asal_sekolah')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="no_telpon" class="mb-2">Nomor Telepon</label>
-                                <input type="text" class="form-control" name="no_telpon" id="no_telpon" value="{{ old('no_telpon', $siswa->no_telpon) }}" required>
-                                @error('no_telpon')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="alamat" class="mb-2">Alamat</label>
-                                <textarea class="form-control" name="alamat" id="alamat" rows="3" required>{{ old('alamat', $siswa->alamat) }}</textarea>
-                                @error('alamat')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="email" class="mb-2">Email Murid</label>
-                                <input type="email" class="form-control" name="email" id="email" 
-                                    value="{{ old('email', $siswa->user->email ?? '') }}" placeholder="email@domain.com" required>
-                                @error('email')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label for="password" class="mb-2">Password Akun</label>
-                                <input type="password" class="form-control" name="password" id="password" 
-                                    placeholder="Kosongkan jika tidak ingin mengubah password">
-                                @error('password')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary">Update Murid</button>
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary">Update Data Siswa</button>
+                                <a href="{{ route('admin.siswa.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>
                     </div>
@@ -128,37 +105,48 @@
     </div>
 @endsection
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const jenjangSelect = document.getElementById('education_level');
-            const kelasSelect = document.getElementById('kelas');
+@push('script')
+<script>
+    $(document).ready(function() {
+        const jenjangDropdown = $('#education_level');
+        const kelasDropdown = $('#kelas');
+        const kelasContainer = $('#kelas-container');
+
+        function updateKelasDropdown() {
+            const jenjang = jenjangDropdown.val();
+            // [PENTING] Ambil nilai kelas yang tersimpan di database
             const currentKelas = "{{ old('kelas', $siswa->kelas) }}";
 
-            const kelasByJenjang = {
-                SD: ['1', '2', '3', '4', '5', '6'],
-                SMP: ['7', '8', '9'],
-                SMA: ['10', '11', '12']
-            };
+            kelasDropdown.empty().append('<option value="" disabled>-- Pilih Kelas --</option>');
 
-            function populateKelas() {
-                const jenjang = jenjangSelect.value;
-                const kelasOptions = kelasByJenjang[jenjang] || [];
+            if (jenjang) {
+                kelasContainer.show();
+                kelasDropdown.prop('disabled', false);
 
-                kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-                kelasOptions.forEach(kelas => {
-                    const option = document.createElement('option');
-                    option.value = kelas;
-                    option.text = kelas;
-                    if (kelas === currentKelas) {
-                        option.selected = true;
+                let start, end;
+                if (jenjang === 'SD') { [start, end] = [1, 6]; }
+                else if (jenjang === 'SMP') { [start, end] = [7, 9]; }
+                else if (jenjang === 'SMA') { [start, end] = [10, 12]; }
+
+                if (start && end) {
+                    for (let i = start; i <= end; i++) {
+                        // Cek apakah 'i' sama dengan kelas yang tersimpan, jika ya, beri 'selected'
+                        const isSelected = i == currentKelas ? 'selected' : '';
+                        kelasDropdown.append(`<option value="${i}" ${isSelected}>${i}</option>`);
                     }
-                    kelasSelect.appendChild(option);
-                });
+                }
+            } else {
+                kelasContainer.hide();
+                kelasDropdown.prop('disabled', true);
             }
+        }
 
-            jenjangSelect.addEventListener('change', populateKelas);
-            populateKelas();
-        });
-    </script>
+        // Jalankan fungsi saat pilihan jenjang berubah
+        jenjangDropdown.on('change', updateKelasDropdown);
+
+        // [SANGAT PENTING] Jalankan fungsi ini saat halaman pertama kali dimuat
+        // Ini akan mengisi dropdown kelas berdasarkan jenjang yang sudah ada
+        updateKelasDropdown();
+    });
+</script>
 @endpush

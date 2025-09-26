@@ -1,24 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AngkatanController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LoginGuruController;
 use App\Http\Controllers\Auth\LoginSiswaController;
+use App\Http\Controllers\GuruController;
 use App\Http\Controllers\Guru\GuruAbsenController;
 use App\Http\Controllers\Guru\GuruController as GuruGuruController;
 use App\Http\Controllers\Guru\SettingsController as GuruSettingsController;
-use App\Http\Controllers\GuruController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KelasBelajarController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RaporToController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Siswa\SiswaController as SiswaSiswaController;
-use App\Http\Controllers\Siswa\SettingController as SiswaSettingController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\Siswa\SettingController as SiswaSettingController;
+use App\Http\Controllers\Siswa\SiswaController as SiswaSiswaController;
+use Illuminate\Support\Facades\Route;
 
 // =================== ROOT ===================
 Route::get('/', function () {
@@ -34,7 +34,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/force-login-proceed', [LoginController::class, 'forceLogin'])->name('force.login.proceed');
 Route::post('/force-login-proceed-guru', [LoginGuruController::class, 'forceLogin'])->name('force.login.proceed.guru');
 Route::post('/force-login-proceed-siswa', [LoginSiswaController::class, 'forceLogin'])->name('force.login.proceed.siswa');
-
 
 // =================== LOGIN KHUSUS ===================
 Route::get('/login-guru', [LoginGuruController::class, 'showLoginForm'])->name('login.guru');
@@ -59,23 +58,31 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password/siswa', [ForgotPasswordController::class, 'updateStudentPassword'])->name('password.update.siswa');
 });
 
-
 // =================== ADMIN ===================
 Route::middleware(['auth', 'IsAdmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    Route::resource('siswa', SiswaController::class);
+    // Rute spesifik siswa diletakkan SEBELUM Route::resource
+    Route::get('/siswa/template', [SiswaController::class, 'downloadTemplate'])->name('siswa.template');
+    Route::get('/siswa/export', [SiswaController::class, 'export'])->name('siswa.export');
+    Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
+
+    // [BARU] Route untuk memvalidasi file sebelum import (via AJAX)
+    Route::post('/siswa/check-import', [SiswaController::class, 'checkImport'])->name('siswa.checkImport');
+
     Route::get('/get-siswa-by-kelas', [SiswaController::class, 'getSiswaByKelas']);
     Route::delete('/siswa/delete-selected', [SiswaController::class, 'deleteSelected'])->name('siswa.deleteSelected');
 
+    // Route resource sekarang diletakkan di bawah rute spesifik
+    Route::resource('siswa', SiswaController::class);
+
+    // ... (sisa rute admin Anda) ...
     Route::resource('angkatan', AngkatanController::class);
     Route::resource('raport', RaporToController::class);
     Route::get('/raport/{rapor}/siswa/{siswa}/cetak', [RaporToController::class, 'cetakPerSiswa'])->name('raport.cetak.siswa');
-
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::post('/settings/store', [SettingsController::class, 'store'])->name('settings.store');
     Route::delete('/settings/{id}', [SettingsController::class, 'destroy'])->name('settings.destroy');
-
     Route::resource('guru', GuruController::class);
     Route::resource('mapel', MapelController::class);
     Route::resource('jadwal', JadwalController::class);
@@ -96,11 +103,9 @@ Route::middleware(['auth', 'IsGuru'])->prefix('guru')->name('guru.')->group(func
     Route::resource('absen', GuruAbsenController::class)->only(['edit', 'update']);
 });
 
-
 // =================== SISWA ===================
 Route::middleware(['auth', 'IsSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaSiswaController::class, 'index'])->name('dashboard');
-
 
     Route::resource('settings', SiswaSettingController::class)->only(['index'])->names([
         'index' => 'settings',
