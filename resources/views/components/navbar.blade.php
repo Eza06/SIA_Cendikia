@@ -16,28 +16,20 @@
             <!-- User Dropdown -->
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar">
-                        <img src="{{ Auth::user()->avatar
-                                    ? asset('storage/' . Auth::user()->avatar)
-                                    : asset('images/default.png') }}"
-                             alt="User Avatar"
-                             class="rounded-circle"
-                             style="width: 45px; height: 45px; object-fit: cover;"/>
-                    </div>
+                    <img src="{{ asset('storage/image/user.png') }}" 
+                         alt="User Avatar" 
+                         class="rounded-circle shadow-sm"
+                         style="width: 45px; height: 45px; object-fit: cover;"/>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3">
                     <li>
                         <a class="dropdown-item" href="#">
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <div class="avatar">
-                                        <img src="{{ Auth::user()->avatar
-                                                    ? asset('storage/' . Auth::user()->avatar)
-                                                    : asset('images/default.png') }}"
-                                             alt="User Avatar"
-                                             class="rounded-circle"
-                                             style="width: 35px; height: 35px; object-fit: cover;"/>
-                                    </div>
+                                    <img src="{{ asset('storage/image/user.png') }}" 
+                                         alt="User Avatar" 
+                                         class="rounded-circle border border-2 border-primary shadow-sm"
+                                         style="width: 35px; height: 35px; object-fit: cover;"/>
                                 </div>
                                 <div class="flex-grow-1">
                                     <span class="fw-semibold d-block text-dark">{{ Auth::user()->name }}</span>
