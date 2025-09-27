@@ -1,38 +1,46 @@
-<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-    id="layout-navbar">
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center shadow-sm"
+    id="layout-navbar" style="background: linear-gradient(90deg, #0d6efd, #0a58ca);">
 
     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+        <a class="nav-item nav-link px-0 me-xl-4 text-white" href="javascript:void(0)">
             <i class="bx bx-menu bx-sm"></i>
         </a>
     </div>
 
     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <div class="navbar-nav align-items-center">
-            <div class="nav-item d-flex align-items-center">
-                <!-- optional search bar -->
-            </div>
+            <!-- Optional Search Bar -->
         </div>
 
         <ul class="navbar-nav flex-row align-items-center ms-auto">
-            <!-- User -->
+            <!-- User Dropdown -->
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online">
-                        <img src="{{ asset('storage/image/user.png') }}" alt class="w-px-50 h-100 rounded-circle" />
+                    <div class="avatar">
+                        <img src="{{ Auth::user()->avatar
+                                    ? asset('storage/' . Auth::user()->avatar)
+                                    : asset('images/default.png') }}"
+                             alt="User Avatar"
+                             class="rounded-circle"
+                             style="width: 45px; height: 45px; object-fit: cover;"/>
                     </div>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end">
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3">
                     <li>
                         <a class="dropdown-item" href="#">
-                            <div class="d-flex">
+                            <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0 me-3">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ asset('storage/image/user.png') }}" alt class="w-px-40 h-100 rounded-circle" />
+                                    <div class="avatar">
+                                        <img src="{{ Auth::user()->avatar
+                                                    ? asset('storage/' . Auth::user()->avatar)
+                                                    : asset('images/default.png') }}"
+                                             alt="User Avatar"
+                                             class="rounded-circle"
+                                             style="width: 35px; height: 35px; object-fit: cover;"/>
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <span class="fw-semibold d-block">{{ Auth::user()->name }}</span>
+                                    <span class="fw-semibold d-block text-dark">{{ Auth::user()->name }}</span>
                                     <small class="text-muted">{{ Auth::user()->role }}</small>
                                 </div>
                             </div>
@@ -42,74 +50,31 @@
 
                     @if (Auth::user()->role == 'ADMIN')
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="bx bx-user me-2"></i>
-                                <span class="align-middle">My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="bx bx-cog me-2"></i>
-                                <span class="align-middle">Settings</span>
-                            </a>
-                        </li>
-                        <li><div class="dropdown-divider"></div></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout') }}"
+                            <a class="dropdown-item text-danger fw-semibold" href="{{ route('logout') }}"
                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="bx bx-power-off me-2"></i>
+                                <i class="bx bx-power-off me-2 text-danger"></i>
                                 <span class="align-middle">Log Out</span>
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
                             </form>
                         </li>
-                    @endif
-
-                    @if (Auth::user()->role == 'GURU')
+                    @elseif (Auth::user()->role == 'GURU')
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="bx bx-user me-2"></i>
-                                <span class="align-middle">My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('guru.settings') }}">
-                                <i class="bx bx-cog me-2"></i>
-                                <span class="align-middle">Settings</span>
-                            </a>
-                        </li>
-                        <li><div class="dropdown-divider"></div></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout.guru') }}"
+                            <a class="dropdown-item text-danger fw-semibold" href="{{ route('logout.guru') }}"
                                onclick="event.preventDefault(); document.getElementById('logout-form-guru').submit();">
-                                <i class="bx bx-power-off me-2"></i>
+                                <i class="bx bx-power-off me-2 text-danger"></i>
                                 <span class="align-middle">Log Out</span>
                             </a>
                             <form id="logout-form-guru" action="{{ route('logout.guru') }}" method="POST" class="d-none">
                                 @csrf
                             </form>
                         </li>
-                    @endif
-
-                    @if (Auth::user()->role == 'MURID')
+                    @elseif (Auth::user()->role == 'MURID')
                         <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="bx bx-user me-2"></i>
-                                <span class="align-middle">My Profile</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('siswa.settings') }}">
-                                <i class="bx bx-cog me-2"></i>
-                                <span class="align-middle">Settings</span>
-                            </a>
-                        </li>
-                        <li><div class="dropdown-divider"></div></li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout.siswa') }}"
+                            <a class="dropdown-item text-danger fw-semibold" href="{{ route('logout.siswa') }}"
                                onclick="event.preventDefault(); document.getElementById('logout-form-siswa').submit();">
-                                <i class="bx bx-power-off me-2"></i>
+                                <i class="bx bx-power-off me-2 text-danger"></i>
                                 <span class="align-middle">Log Out</span>
                             </a>
                             <form id="logout-form-siswa" action="{{ route('logout.siswa') }}" method="POST" class="d-none">
@@ -119,7 +84,7 @@
                     @endif
                 </ul>
             </li>
-            <!--/ User -->
+            <!--/ User Dropdown -->
         </ul>
     </div>
 </nav>
